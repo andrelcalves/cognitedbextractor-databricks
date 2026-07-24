@@ -224,3 +224,1534 @@ queries:
     primary-key: "{IFLOS_PK}"
 
 # END FUNCTIONAL LOCATION
+
+# NEW SAP TABLES
+  - name: "extract-everest-AFFW"
+    database: "db-databricks-raw"
+    query: >          
+      SELECT CONCAT(WEBLNR, '_', WEBLPOS) AS AFFW_PK, *
+      FROM hub_dev.g_external.v_cognite_affw_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFFW"
+    primary-key: "{AFFW_PK}"
+
+  - name: "extract-everest-AFIH"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_afih_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFIH"
+    primary-key: "{AUFNR}"
+
+  - name: "extract-everest-AFKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_afko_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFKO"
+    primary-key: "{AUFNR}"
+
+  - name: "extract-everest-AFPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(AUFNR, '_', POSNR) AS AFPO_PK, *
+      FROM hub_dev.g_external.v_cognite_afpo_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFPO"
+    primary-key: "{AFPO_PK}"
+
+  - name: "extract-everest-AFRC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(AUFNR, '_', RUECK, '_', RMZHL) AS AFRC_PK, *
+      FROM hub_dev.g_external.v_cognite_afrc_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFRC"
+    primary-key: "{AFRC_PK}"
+
+  - name: "extract-everest-AFRU"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(RUECK, '_', RMZHL) AS AFRU_PK, *
+      FROM hub_dev.g_external.v_cognite_afru_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFRU"
+    primary-key: "{AFRU_PK}"
+
+  - name: "extract-everest-AFVC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(AUFPL, '_', APLZL) AS AFVC_PK, *
+      FROM hub_dev.g_external.v_cognite_afvc_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFVC"
+    primary-key: "{AFVC_PK}"
+
+  - name: "extract-everest-AFVV"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(AUFPL, '_', APLZL) AS AFVV_PK, *
+      FROM hub_dev.g_external.v_cognite_afvv_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFVV"
+    primary-key: "{AFVV_PK}"
+
+  - name: "extract-everest-AFWI"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(RUECK, '_', RMZHL, '_', MBLNR, '_', MJAHR, '_', MBLPO) AS AFWI_PK, *
+      FROM hub_dev.g_external.v_cognite_afwi_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFWI"
+    primary-key: "{AFWI_PK}"
+
+  - name: "extract-everest-AUFK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_aufk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AUFK"
+    primary-key: "{AUFNR}"
+
+  - name: "extract-everest-AUFM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MBLNR, '_', MJAHR, '_', ZEILE) AS AUFM_PK, *
+      FROM hub_dev.g_external.v_cognite_aufm_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AUFM"
+    primary-key: "{AUFM_PK}"
+
+  - name: "extract-everest-AUSP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(OBJEK, '_', ATINN, '_', ATZHL, '_', MAFID, '_', KLART, '_', ADZHL) AS AUSP_PK, *
+      FROM hub_dev.g_external.v_cognite_ausp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AUSP"
+    primary-key: "{AUSP_PK}"
+
+  - name: "extract-everest-CKIS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(LEDNR, '_', BZOBJ, '_', KALNR, '_', KALKA, '_', KADKY, '_', TVERS, '_', BWVAR, '_', KKZMA, '_', POSNR) AS CKIS_PK, *
+      FROM hub_dev.g_external.v_cognite_ckis_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CKIS"
+    primary-key: "{CKIS_PK}"
+
+  - name: "extract-everest-COEP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(KOKRS, '_', BELNR, '_', BUZEI) AS COEP_PK, *
+      FROM hub_dev.g_external.v_cognite_coep_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_COEP"
+    primary-key: "{COEP_PK}"
+
+  - name: "extract-everest-COSP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(LEDNR, '_', OBJNR, '_', GJAHR, '_', WRTTP, '_', VERSN, '_', KSTAR, '_', HRKFT, '_', VRGNG, '_', VBUND, '_', PARGB, '_', BEKNZ, '_', TWAER, '_', PERBL) AS COSP_PK, *
+      FROM hub_dev.g_external.v_cognite_cosp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_COSP"
+    primary-key: "{COSP_PK}"
+
+  - name: "extract-everest-EAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EQUNR, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', ZKRIZ, '_', ZAEHL) AS EAPL_PK, *
+      FROM hub_dev.g_external.v_cognite_eapl_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EAPL"
+    primary-key: "{EAPL_PK}"
+
+  - name: "extract-everest-EBAN"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(BANFN, '_', BNFPO) AS EBAN_PK, *
+      FROM hub_dev.g_external.v_cognite_eban_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EBAN"
+    primary-key: "{EBAN_PK}"
+
+  - name: "extract-everest-EINA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_eina_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EINA"
+    primary-key: "{INFNR}"
+
+  - name: "extract-everest-EINE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(INFNR, '_', EKORG, '_', ESOKZ, '_', WERKS) AS EINE_PK, *
+      FROM hub_dev.g_external.v_cognite_eine_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EINE"
+    primary-key: "{EINE_PK}"
+
+  - name: "extract-everest-EKBE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EBELN, '_', EBELP, '_', ZEKKN, '_', VGABE, '_', GJAHR, '_', BELNR, '_', BUZEI) AS EKBE_PK, *
+      FROM hub_dev.g_external.v_cognite_ekbe_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKBE"
+    primary-key: "{EKBE_PK}"
+
+  - name: "extract-everest-EKET"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EBELN, '_', EBELP, '_', ETENR) AS EKET_PK, *
+      FROM hub_dev.g_external.v_cognite_eket_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKET"
+    primary-key: "{EKET_PK}"
+
+  - name: "extract-everest-EKKN"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EBELN, '_', EBELP, '_', ZEKKN) AS EKKN_PK, *
+      FROM hub_dev.g_external.v_cognite_ekkn_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKKN"
+    primary-key: "{EKKN_PK}"
+
+  - name: "extract-everest-EKKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_ekko_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKKO"
+    primary-key: "{EBELN}"
+
+  - name: "extract-everest-EKPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EBELN, '_', EBELP) AS EKPO_PK, *
+      FROM hub_dev.g_external.v_cognite_ekpo_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKPO"
+    primary-key: "{EKPO_PK}"
+
+  - name: "extract-everest-EQKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EQUNR, '_', SPRAS) AS EQKT_PK, *
+      FROM hub_dev.g_external.v_cognite_eqkt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQKT"
+    primary-key: "{EQKT_PK}"
+
+  - name: "extract-everest-EQST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EQUNR, '_', WERKS, '_', STLAN, '_', STLNR, '_', STLAL) AS EQST_PK, *
+      FROM hub_dev.g_external.v_cognite_eqst_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQST"
+    primary-key: "{EQST_PK}"
+
+  - name: "extract-everest-EQUI"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_equi_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQUI"
+    primary-key: "{EQUNR}"
+
+  - name: "extract-everest-EQUZ"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(EQUNR, '_', DATBI, '_', EQLFN) AS EQUZ_PK, *
+      FROM hub_dev.g_external.v_cognite_equz_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQUZ"
+    primary-key: "{EQUZ_PK}"
+
+  - name: "extract-everest-ILOA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_iloa_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_ILOA"
+    primary-key: "{ILOAN}"
+
+  - name: "extract-everest-IMPTT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_imptt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IMPTT"
+    primary-key: "{POINT}"
+
+  - name: "extract-everest-IMRG"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_imrg_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IMRG"
+    primary-key: "{MDOCM}"
+
+  - name: "extract-everest-JEST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(OBJNR, '_', STAT) AS JEST_PK, *
+      FROM hub_dev.g_external.v_cognite_jest_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_JEST"
+    primary-key: "{JEST_PK}"
+
+  - name: "extract-everest-KEKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(BZOBJ, '_', KALNR, '_', KALKA, '_', KADKY, '_', TVERS, '_', BWVAR, '_', KKZMA) AS KEKO_PK, *
+      FROM hub_dev.g_external.v_cognite_keko_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KEKO"
+    primary-key: "{KEKO_PK}"
+
+  - name: "extract-everest-KNA1"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_kna1_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KNA1"
+    primary-key: "{KUNNR}"
+
+  - name: "extract-everest-KNVK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_knvk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KNVK"
+    primary-key: "{PARNR}"
+
+  - name: "extract-everest-KNVV"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(KUNNR, '_', VKORG, '_', VTWEG, '_', SPART) AS KNVV_PK, *
+      FROM hub_dev.g_external.v_cognite_knvv_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KNVV"
+    primary-key: "{KNVV_PK}"
+
+  - name: "extract-everest-KSSK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(OBJEK, '_', MAFID, '_', KLART, '_', ADZHL) AS KSSK_PK, *
+      FROM hub_dev.g_external.v_cognite_kssk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KSSK"
+    primary-key: "{KSSK_PK}"
+
+  - name: "extract-everest-LAGP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(LGNUM, '_', LGTYP, '_', LGPLA) AS LAGP_PK, *
+      FROM hub_dev.g_external.v_cognite_lagp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LAGP"
+    primary-key: "{LAGP_PK}"
+
+  - name: "extract-everest-LFA1"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_lfa1_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LFA1"
+    primary-key: "{LIFNR}"
+
+  - name: "extract-everest-LIKP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_likp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LIKP"
+    primary-key: "{VBELN}"
+
+  - name: "extract-everest-LIPS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(VBELN, '_', POSNR) AS LIPS_PK, *
+      FROM hub_dev.g_external.v_cognite_lips_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LIPS"
+    primary-key: "{LIPS_PK}"
+
+  - name: "extract-everest-LQUA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_lqua_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LQUA"
+    primary-key: "{LQNUM}"
+
+  - name: "extract-everest-MAKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', SPRAS) AS MAKT_PK, *
+      FROM hub_dev.g_external.v_cognite_makt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MAKT"
+    primary-key: "{MAKT_PK}"
+
+  - name: "extract-everest-MAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', ZAEHL) AS MAPL_PK, *
+      FROM hub_dev.g_external.v_cognite_mapl_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MAPL"
+    primary-key: "{MAPL_PK}"
+
+  - name: "extract-everest-MARA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_mara_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARA"
+    primary-key: "{MATNR}"
+
+  - name: "extract-everest-MARC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS) AS MARC_PK, *
+      FROM hub_dev.g_external.v_cognite_marc_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARC"
+    primary-key: "{MARC_PK}"
+
+  - name: "extract-everest-MARD"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS, '_', LGORT) AS MARD_PK, *
+      FROM hub_dev.g_external.v_cognite_mard_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARD"
+    primary-key: "{MARD_PK}"
+
+  - name: "extract-everest-MARM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', MEINH) AS MARM_PK, *
+      FROM hub_dev.g_external.v_cognite_marm_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARM"
+    primary-key: "{MARM_PK}"
+
+  - name: "extract-everest-MAST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS, '_', STLAN, '_', STLNR, '_', STLAL) AS MAST_PK, *
+      FROM hub_dev.g_external.v_cognite_mast_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MAST"
+    primary-key: "{MAST_PK}"
+
+  - name: "extract-everest-MBEW"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', BWKEY, '_', BWTAR) AS MBEW_PK, *
+      FROM hub_dev.g_external.v_cognite_mbew_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MBEW"
+    primary-key: "{MBEW_PK}"
+
+  - name: "extract-everest-MCH1"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', CHARG) AS MCH1_PK, *
+      FROM hub_dev.g_external.v_cognite_mch1_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MCH1"
+    primary-key: "{MCH1_PK}"
+
+  - name: "extract-everest-MCHA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS, '_', CHARG) AS MCHA_PK, *
+      FROM hub_dev.g_external.v_cognite_mcha_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MCHA"
+    primary-key: "{MCHA_PK}"
+
+  - name: "extract-everest-MCHB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS, '_', LGORT, '_', CHARG) AS MCHB_PK, *
+      FROM hub_dev.g_external.v_cognite_mchb_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MCHB"
+    primary-key: "{MCHB_PK}"
+
+  - name: "extract-everest-MDKP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_mdkp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MDKP"
+    primary-key: "{DTNUM}"
+
+  - name: "extract-everest-MDMA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', BERID) AS MDMA_PK, *
+      FROM hub_dev.g_external.v_cognite_mdma_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MDMA"
+    primary-key: "{MDMA_PK}"
+
+  - name: "extract-everest-MDTB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(DTNUM, '_', DTPOS) AS MDTB_PK, *
+      FROM hub_dev.g_external.v_cognite_mdtb_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MDTB"
+    primary-key: "{MDTB_PK}"
+
+  - name: "extract-everest-MHIO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(WARPL, '_', WAPOS, '_', ABNUM, '_', LFDAT) AS MHIO_PK, *
+      FROM hub_dev.g_external.v_cognite_mhio_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MHIO"
+    primary-key: "{MHIO_PK}"
+
+  - name: "extract-everest-MHIS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(WARPL, '_', ABNUM, '_', ZAEHL) AS MHIS_PK, *
+      FROM hub_dev.g_external.v_cognite_mhis_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MHIS"
+    primary-key: "{MHIS_PK}"
+
+  - name: "extract-everest-MKAL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS, '_', VERID) AS MKAL_PK, *
+      FROM hub_dev.g_external.v_cognite_mkal_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MKAL"
+    primary-key: "{MKAL_PK}"
+
+  - name: "extract-everest-MKPF"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MBLNR, '_', MJAHR) AS MKPF_PK, *
+      FROM hub_dev.g_external.v_cognite_mkpf_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MKPF"
+    primary-key: "{MKPF_PK}"
+
+  - name: "extract-everest-MPLA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_mpla_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MPLA"
+    primary-key: "{WARPL}"
+
+  - name: "extract-everest-MPOS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(WARPL, '_', WAPOS) AS MPOS_PK, *
+      FROM hub_dev.g_external.v_cognite_mpos_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MPOS"
+    primary-key: "{MPOS_PK}"
+
+  - name: "extract-everest-MSEG"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MBLNR, '_', MJAHR, '_', ZEILE) AS MSEG_PK, *
+      FROM hub_dev.g_external.v_cognite_mseg_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MSEG"
+    primary-key: "{MSEG_PK}"
+
+  - name: "extract-everest-MSKU"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MATNR, '_', WERKS, '_', CHARG, '_', SOBKZ, '_', KUNNR) AS MSKU_PK, *
+      FROM hub_dev.g_external.v_cognite_msku_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MSKU"
+    primary-key: "{MSKU_PK}"
+
+  - name: "extract-everest-OBJK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(OBKNR, '_', OBZAE) AS OBJK_PK, *
+      FROM hub_dev.g_external.v_cognite_objk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_OBJK"
+    primary-key: "{OBJK_PK}"
+
+  - name: "extract-everest-PLAS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PLNTY, '_', PLNNR, '_', PLNKN, '_', ZAEHL) AS PLAS_PK, *
+      FROM hub_dev.g_external.v_cognite_plas_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLAS"
+    primary-key: "{PLAS_PK}"
+
+  - name: "extract-everest-PLFL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PLNTY, '_', PLNNR, '_', PLNAL, '_', PLNFL, '_', ZAEHL) AS PLFL_PK, *
+      FROM hub_dev.g_external.v_cognite_plfl_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLFL"
+    primary-key: "{PLFL_PK}"
+
+  - name: "extract-everest-PLKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PLNTY, '_', PLNNR, '_', PLNAL) AS PLKO_PK, *
+      FROM hub_dev.g_external.v_cognite_plko_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLKO"
+    primary-key: "{PLKO_PK}"
+
+  - name: "extract-everest-PLMZ"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PLNTY, '_', PLNNR, '_', ZUONR, '_', ZAEHL) AS PLMZ_PK, *
+      FROM hub_dev.g_external.v_cognite_plmz_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLMZ"
+    primary-key: "{PLMZ_PK}"
+
+  - name: "extract-everest-PLPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PLNTY, '_', PLNNR, '_', PLNKN) AS PLPO_PK, *
+      FROM hub_dev.g_external.v_cognite_plpo_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLPO"
+    primary-key: "{PLPO_PK}"
+
+  - name: "extract-everest-PLWP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PLNTY, '_', PLNNR, '_', PLNAL, '_', PLNFL, '_', PLNKN, '_', PAKET, '_', ZAEHL) AS PLWP_PK, *
+      FROM hub_dev.g_external.v_cognite_plwp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLWP"
+    primary-key: "{PLWP_PK}"
+
+  - name: "extract-everest-PMCO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(OBJNR, '_', BELTP, '_', WRTTP, '_', GJAHR, '_', PERIO, '_', F_OBJNR) AS PMCO_PK, *
+      FROM hub_dev.g_external.v_cognite_pmco_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PMCO"
+    primary-key: "{PMCO_PK}"
+
+  - name: "extract-everest-QALS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_qals_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QALS"
+    primary-key: "{PRUEFLOS}"
+
+  - name: "extract-everest-QAMR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PRUEFLOS, '_', VORGLFNR, '_', MERKNR, '_', DETAILERG) AS QAMR_PK, *
+      FROM hub_dev.g_external.v_cognite_qamr_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QAMR"
+    primary-key: "{QAMR_PK}"
+
+  - name: "extract-everest-QAVE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PRUEFLOS, '_', KZART, '_', ZAEHLER) AS QAVE_PK, *
+      FROM hub_dev.g_external.v_cognite_qave_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QAVE"
+    primary-key: "{QAVE_PK}"
+
+  - name: "extract-everest-QMAT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(ART, '_', MATNR, '_', WERKS) AS QMAT_PK, *
+      FROM hub_dev.g_external.v_cognite_qmat_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMAT"
+    primary-key: "{QMAT_PK}"
+
+  - name: "extract-everest-QMEL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_qmel_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMEL"
+    primary-key: "{QMNUM}"
+
+  - name: "extract-everest-QMFE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(QMNUM, '_', FENUM) AS QMFE_PK, *
+      FROM hub_dev.g_external.v_cognite_qmfe_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMFE"
+    primary-key: "{QMFE_PK}"
+
+  - name: "extract-everest-QMIH"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_qmih_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMIH"
+    primary-key: "{QMNUM}"
+
+  - name: "extract-everest-QMSM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(QMNUM, '_', MANUM) AS QMSM_PK, *
+      FROM hub_dev.g_external.v_cognite_qmsm_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMSM"
+    primary-key: "{QMSM_PK}"
+
+  - name: "extract-everest-QMUR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(QMNUM, '_', FENUM, '_', URNUM) AS QMUR_PK, *
+      FROM hub_dev.g_external.v_cognite_qmur_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMUR"
+    primary-key: "{QMUR_PK}"
+
+  - name: "extract-everest-QPCT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(KATALOGART, '_', CODEGRUPPE, '_', CODE, '_', SPRACHE, '_', VERSION) AS QPCT_PK, *
+      FROM hub_dev.g_external.v_cognite_qpct_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPCT"
+    primary-key: "{QPCT_PK}"
+
+  - name: "extract-everest-QPGR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(KATALOGART, '_', CODEGRUPPE) AS QPGR_PK, *
+      FROM hub_dev.g_external.v_cognite_qpgr_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPGR"
+    primary-key: "{QPGR_PK}"
+
+  - name: "extract-everest-QPGT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(KATALOGART, '_', CODEGRUPPE, '_', SPRACHE) AS QPGT_PK, *
+      FROM hub_dev.g_external.v_cognite_qpgt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPGT"
+    primary-key: "{QPGT_PK}"
+
+  - name: "extract-everest-RESB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(RSNUM, '_', RSPOS, '_', RSART) AS RESB_PK, *
+      FROM hub_dev.g_external.v_cognite_resb_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_RESB"
+    primary-key: "{RESB_PK}"
+
+  - name: "extract-everest-RKPF"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_rkpf_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_RKPF"
+    primary-key: "{RSNUM}"
+
+  - name: "extract-everest-SER01"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_ser01_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER01"
+    primary-key: "{OBKNR}"
+
+  - name: "extract-everest-SER03"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_ser03_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER03"
+    primary-key: "{OBKNR}"
+
+  - name: "extract-everest-SER05"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_ser05_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER05"
+    primary-key: "{OBKNR}"
+
+  - name: "extract-everest-STAS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(STLTY, '_', STLNR, '_', STLAL, '_', STLKN, '_', STASZ) AS STAS_PK, *
+      FROM hub_dev.g_external.v_cognite_stas_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_STAS"
+    primary-key: "{STAS_PK}"
+
+  - name: "extract-everest-STKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(STLTY, '_', STLNR, '_', STLAL, '_', STKOZ) AS STKO_PK, *
+      FROM hub_dev.g_external.v_cognite_stko_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_STKO"
+    primary-key: "{STKO_PK}"
+
+  - name: "extract-everest-STPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(STLTY, '_', STLNR, '_', STLKN, '_', STPOZ) AS STPO_PK, *
+      FROM hub_dev.g_external.v_cognite_stpo_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_STPO"
+    primary-key: "{STPO_PK}"
+
+  - name: "extract-everest-T001"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_t001_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001"
+    primary-key: "{BUKRS}"
+
+  - name: "extract-everest-T001K"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_t001k_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001K"
+    primary-key: "{BWKEY}"
+
+  - name: "extract-everest-T001L"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(WERKS, '_', LGORT) AS T001L_PK, *
+      FROM hub_dev.g_external.v_cognite_t001l_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001L"
+    primary-key: "{T001L_PK}"
+
+  - name: "extract-everest-T001W"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_t001w_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001W"
+    primary-key: "{WERKS}"
+
+  - name: "extract-everest-T003P"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(SPRAS, '_', AUART) AS T003P_PK, *
+      FROM hub_dev.g_external.v_cognite_t003p_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T003P"
+    primary-key: "{T003P_PK}"
+
+  - name: "extract-everest-T006"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_t006_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T006"
+    primary-key: "{MSEHI}"
+
+  - name: "extract-everest-T006A"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(SPRAS, '_', MSEHI) AS T006A_PK, *
+      FROM hub_dev.g_external.v_cognite_t006a_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T006A"
+    primary-key: "{T006A_PK}"
+
+  - name: "extract-everest-T023"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_t023_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T023"
+    primary-key: "{MATKL}"
+
+  - name: "extract-everest-T023T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(SPRAS, '_', MATKL) AS T023T_PK, *
+      FROM hub_dev.g_external.v_cognite_t023t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T023T"
+    primary-key: "{T023T_PK}"
+
+  - name: "extract-everest-T024"
+    database: "db-databricks-raw"
+    query: >
+      SELECT *
+      FROM hub_dev.g_external.v_cognite_t024_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024"
+    primary-key: "{EKGRP}"
