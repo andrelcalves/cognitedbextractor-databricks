@@ -9,11 +9,8 @@ Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_evere
 ## File layout
 | File | Role |
 |------|------|
-| `sap/config.yaml` | Small template (10 queries), blanked connection endpoint |
-| `sap/config-new.yaml` | Earlier 57-query categorized draft |
-| `sap/config-full.yaml` | Full 149-query extract config (source of truth for complete extract) |
+| `sap/config.yaml` | Extract config (149 categorized queries), blanked connection endpoint |
 | `sap/prompt.md` | Authoring instructions for YAML merges |
-| `sap/queries.txt` | Source table inventory / notes |
 | `sap/PRD.md` | This document — extract rules |
 
 ---
@@ -24,7 +21,8 @@ Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_evere
 - Every extract query MUST define a Cognite `primary-key` based on the SAP table primary key, **including `MANDT` as the first component**.
 - All queries emit a synthetic key: `CONCAT(MANDT, '_', field1, '_', ...)` AS `{TABLE}_PK`.
 - Cognite field: `primary-key: "{TABLE}_PK"`.
-- Key field choices follow the SAP table reference. Where an older draft (`config-new.yaml`) disagrees with the SAP reference on non-`MANDT` fields, prefer the SAP reference fields used in `config-full.yaml`.
+- Key field choices follow the SAP table reference. Tables whose client field is named `CLIENT` instead of `MANDT` (e.g. `T003P`) use `CLIENT` as the first component.
+- Where the SAP reference differs between ECC and S/4HANA, prefer the key fields that exist in both releases (e.g. `VBFA` uses `VBELV, POSNV, VBELN, POSNN, VBTYP_N` rather than the S/4-only `RUUID`).
 
 ### R2 — Rolling 1-year filter on DATETIMESTAMP
 - All extract queries (all 149 tables) MUST filter to the last year of data.
@@ -50,8 +48,8 @@ WHERE coalesce(
 - Destination database: `db_databricks_everest_raw`
 - Destination table pattern: `tb_{TABLE}`
 - Source view pattern: `hub_dev.g_external.v_cognite_{table_lower}_everest`
-- Queries MUST be grouped with paired category comments (header + end), matching the style in `config-new.yaml` / `config-full.yaml`.
-- Each query SHOULD have a one-line `# TABLE - description` comment.
+- Queries MUST be grouped by SAP functional area with paired category comments (header + end).
+- Each query MUST have a one-line `# TABLE - description` comment immediately above it.
 
 ### R4 — Blanked connection endpoint in committed configs
 - Committed YAML MUST NOT contain live Databricks `Host` or `HTTPPath` values.
