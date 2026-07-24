@@ -1,0 +1,986 @@
+queries:
+
+# WORKCENTER TABLES  
+ # TC25 - Work Center Formulas
+  - name: "extract-everest-TC25"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', IDENT) AS TC25_PK, *
+      FROM hub_dev.g_external.v_cognite_tc25_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TC25"
+
+    primary-key: "{TC25_PK}"
+ # CRHD - Work Center Header
+  - name: "extract-everest-CRHD"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', BEGDA, '_', ENDDA) AS CRHD_PK, *
+      FROM hub_dev.g_external.v_cognite_crhd_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRHD"
+
+    primary-key: "{CRHD_PK}"
+ # CRTX - Text for the Work Center or Production Resource/Tool
+  - name: "extract-everest-CRTX"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', SPRAS) AS CRTX_PK, *
+      FROM hub_dev.g_external.v_cognite_crtx_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRTX"
+
+    primary-key: "{CRTX_PK}"
+ # CRCO - Assignment of Work Center to Cost Center
+  - name: "extract-everest-CRCO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', LASET, '_', ENDDA, '_', LANUM) AS CRCO_PK, *
+      FROM hub_dev.g_external.v_cognite_crco_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRCO"
+
+    primary-key: "{CRCO_PK}"
+ # CRCA - Work Center Capacity Allocation
+  - name: "extract-everest-CRCA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', CANUM) AS CRCA_PK, *
+      FROM hub_dev.g_external.v_cognite_crca_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRCA"
+
+    primary-key: "{CRCA_PK}"
+# WORKCENTER END
+
+# CAPACITY MASTER DATA TABLES
+  # KAKO - Capacity Header Segment
+  - name: "extract-everest-KAKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KAPID) AS KAKO_PK,*
+      FROM hub_dev.g_external.v_cognite_kako_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAKO"
+
+    primary-key: "{KAKO_PK}"
+  # KAKT - Capacity Descriptions
+  - name: "extract-everest-KAKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KAPID, '_', SPRAS) AS KAKT_PK, *
+      FROM hub_dev.g_external.v_cognite_kakt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAKT"
+
+    primary-key: "{KAKT_PK}" 
+  # KAKT - Capacity Segment Parameter Data
+  - name: "extract-everest-KAPA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT((MANDT, '_', KAPID, '_', VERSN, '_') AS KAPA_PK, *
+      FROM hub_dev.g_external.v_cognite_kapa_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAPA"
+
+    primary-key: "{KAPA_PK}"
+  # KAZY - Interval of Available Capacity
+  - name: "extract-everest-KAZY"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KAPID, '_', VERSN, '_', DATUB) AS KAZY_PK, *
+      FROM hub_dev.g_external.v_cognite_kazy_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAZY"
+
+    primary-key: "{KAZY_PK}"
+# CAPACITY END
+
+# COSTCENTER TABLES  
+  # CSKS - Cost Center Master Data  
+  - name: "extract-everest-CSKS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KOKRS, '_', KOSTL, '_', DATBI) AS CSKS_PK, *
+      FROM hub_dev.g_external.v_cognite_csks_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CSKS"
+
+    primary-key: "{CSKS_PK}"
+  # CSKT - Cost Center Texts 
+  - name: "extract-everest-CSKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', KOKRS, '_', KOSTL, '_', DATBI) AS CSKT_PK, *
+      FROM hub_dev.g_external.v_cognite_cskt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CSKT"
+
+    primary-key: "{CSKT_PK}"
+# END COSTCENTER
+
+# FUNCTION LOCATION TABLES
+  # IFLOT - Functional Location Master Data
+  - name: "extract-everest-IFLOT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_' , TPLNR) AS IFLOS_PK, *
+      FROM hub_dev.g_external.v_cognite_iflot_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOT"
+
+    primary-key: "{IFLOT_PK}"
+  # IFLOTX - Functional Location Short Texts
+  - name: "extract-everest-IFLOTX"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLNR, '_', SPRAS) AS IFLOTX_PK, *
+      FROM hub_dev.g_external.v_cognite_iflotx_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOTX"
+
+    primary-key: "{IFLOTX_PK}"
+  # IFLOS - Functional Location Alternative Labels
+  - name: "extract-everest-IFLOS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_' , TPLNR, '_', ALKEY , '_', VERSN) AS IFLOS_PK, *
+      FROM hub_dev.g_external.v_cognite_iflos_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOS"
+
+    primary-key: "{IFLOS_PK}"
+# END FUNCTIONAL LOCATION
+
+# SALES & LOGISTICS (SD/LE) TABLES
+ # VBBE - Sales Requirements: Individual Records (Tracks open allocations/demands for MRP)
+  - name: "extract-everest-VBBE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR, '_', ETENR) AS VBBE_PK, *
+      FROM hub_dev.g_external.v_cognite_vbbe_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBBE"
+
+    primary-key: "{VBBE_PK}"
+
+ # VBEP - Sales Document: Schedule Line Data (Delivery dates and quantities)
+  - name: "extract-everest-VBEP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR, '_', ETENR) AS VBEP_PK, *
+      FROM hub_dev.g_external.v_cognite_vbep_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBEP"
+
+    primary-key: "{VBEP_PK}"
+
+ # VBFA - Sales Document Flow (Tracks relationships between Orders, Deliveries, and Invoices)
+  - name: "extract-everest-VBFA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELV, '_', POSNV, '_', VBELN, '_', POSNN, '_', VBTYP_N) AS VBFA_PK, *
+      FROM hub_dev.g_external.v_cognite_vbfa_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBFA"
+
+    primary-key: "{VBFA_PK}"
+
+ # VBPA - Sales Document: Partner (Links Customers, Shippers, and Vendors to documents)
+  - name: "extract-everest-VBPA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR, '_', PARVW) AS VBPA_PK, *
+      FROM hub_dev.g_external.v_cognite_vbpa_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBPA"
+
+    primary-key: "{VBPA_PK}"
+
+  # VTTK - Shipment Header (Manages high-level freight and logistics tracking documents)
+  - name: "extract-everest-VTTK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TKNUM) AS VTTK_PK, *
+      FROM hub_dev.g_external.v_cognite_vttk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VTTK"
+
+    primary-key: "{VTTK_PK}"
+
+ # VTTP - Shipment Item (Assigns specific deliveries to the transportation shipment header)
+  - name: "extract-everest-VTTP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TKNUM, '_', TPNUM) AS VTTP_PK, *
+      FROM hub_dev.g_external.v_cognite_vttp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VTTP"
+
+    primary-key: "{VTTP_PK}"
+# SALES & LOGISTICS END
+
+# PRODUCTION PLANNING (PP) CONFIGURATION TABLES
+  # T430 - Operation/Activity Control Key (Defines scheduling, costing, and confirmation rules)
+  - name: "extract-everest-T430"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNAW, '_', STEUS) AS T430_PK, *
+      FROM hub_dev.g_external.v_cognite_t430_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T430"
+
+    primary-key: "{T430_PK}"
+
+  # T430T - Language-Dependent Text Table for Control Keys (T430 descriptions)
+  - name: "extract-everest-T430T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', PLNAW, '_', STEUS) AS T430T_PK, *
+      FROM hub_dev.g_external.v_cognite_t430t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T430T"
+
+    primary-key: "{T430T_PK}"
+
+  # TC25T - Work Center Formula Texts (Descriptions for mathematical execution formulas)
+  - name: "extract-everest-TC25T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', IDENT) AS TC25T_PK, *
+      FROM hub_dev.g_external.v_cognite_tc25t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TC25T"
+
+    primary-key: "{TC25T_PK}"
+
+  # TC37A - Shift Definitions (Manages working hour shifts, start/end times, and breaks)
+  - name: "extract-everest-TC37A"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SCHGRUP, '_', KAPTPROG, '_', ENDDA) AS TC37A_PK, *
+      FROM hub_dev.g_external.v_cognite_tc37a_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TC37A"
+
+    primary-key: "{TC37A_PK}"
+# PRODUCTION PLANNING END
+
+# PLANT MAINTENANCE (PM) & SYSTEM STATUS TABLES
+  # TAPL - Allocation of Task Lists to Functional Locations (Links maintenance routines to areas)
+  - name: "extract-everest-TAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLNR, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', ZKRIZ, '_', ZAEHL) AS TAPL_PK, *
+      FROM hub_dev.g_external.v_cognite_tapl_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TAPL"
+
+    primary-key: "{TAPL_PK}"
+
+  # TJ30T - User Status Texts (Translates customized object status codes like PM Order milestones)
+  - name: "extract-everest-TJ30T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', STSMA, '_', ESTAT, '_', SPRAS) AS TJ30T_PK, *
+      FROM hub_dev.g_external.v_cognite_tj30t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TJ30T"
+
+    primary-key: "{TJ30T_PK}"
+
+  # TPST - Functional Location BOM Assignment (Maps localized Bills of Material to physical assets)
+  - name: "extract-everest-TPST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLNR) AS TPST_PK, *
+      FROM hub_dev.g_external.v_cognite_tpst_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TPST"
+
+    primary-key: "{TPST_PK}"
+# PLANT MAINTENANCE END
+
+# QUALITY MANAGEMENT (QM) TABLES
+  # TQ80 - Notification Types (Defines profiles for Maintenance, Quality, or Customer issues)
+  - name: "extract-everest-TQ80"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMART) AS TQ80_PK, *
+      FROM hub_dev.g_external.v_cognite_tq80_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TQ80"
+
+    primary-key: "{TQ80_PK}"
+# QUALITY MANAGEMENT END
+
+# MATERIAL MANAGEMENT & PRODUCTION LOGISTICS (MM/PP) TABLES
+  # T024D - MRP Controllers (Defines the planners responsible for material availability groups per plant)
+  - name: "extract-everest-T024D"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WERKS, '_', DISPO) AS T024D_PK, *
+      FROM hub_dev.g_external.v_cognite_t024d_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024D"
+
+    primary-key: "{T024D_PK}"
+
+  # T024E - Purchasing Organizations (Defines legal purchasing entities responsible for negotiating vendor terms)
+  - name: "extract-everest-T024E"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EKORG) AS T024E_PK, *
+      FROM hub_dev.g_external.v_cognite_t024e_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024E"
+
+    primary-key: "{T024E_PK}"
+
+  # T134 - Material Types (Controls material number ranges, procurement variants, and field selections)
+  - name: "extract-everest-T134"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MTART) AS T134_PK, *
+      FROM hub_dev.g_external.v_cognite_t134_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T134"
+
+    primary-key: "{T134_PK}"
+
+  # T134T - Material Type Texts (Language translations for material types)
+  - name: "extract-everest-T134T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', MTART) AS T134T_PK, *
+      FROM hub_dev.g_external.v_cognite_t134t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T134T"
+
+    primary-key: "{T134T_PK}"
+
+  # T156 - Movement Types (Defines central parameters for material ledger inventory entries, e.g., 101, 261)
+  - name: "extract-everest-T156"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', BWART) AS T156_PK, *
+      FROM hub_dev.g_external.v_cognite_t156_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T156"
+
+    primary-key: "{T156_PK}"
+
+  # T156HT - Movement Type Help Texts (Long text explanations for stock movements)
+  - name: "extract-everest-T156HT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', BWART) AS T156HT_PK, *
+      FROM hub_dev.g_external.v_cognite_t156ht_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T156HT"
+
+    primary-key: "{T156HT_PK}"
+
+  # T156T - Movement Type Short Texts (Translates standard labels for goods movements)
+  - name: "extract-everest-T156T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', BWART, '_', SOBKZ, '_', KZBEW, '_', KZVBR) AS T156T_PK, *
+      FROM hub_dev.g_external.v_cognite_t156t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T156T"
+
+    primary-key: "{T156T_PK}"
+
+  # T301 - Warehouse Management Storage Types (Defines storage areas within a warehouse complex, e.g., high-rack)
+  - name: "extract-everest-T301"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LGNUM, '_', LGTYP) AS T301_PK, *
+      FROM hub_dev.g_external.v_cognite_t301_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T301"
+
+    primary-key: "{T301_PK}"
+# MATERIAL MANAGEMENT END
+
+# PLANT MAINTENANCE (PM) CONFIGURATION TABLES
+  # T024I - Maintenance Planner Groups (Identifies asset engineering planning groups within a plant)
+  - name: "extract-everest-T024I"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', IWERK, '_', INGRP) AS T024I_PK, *
+      FROM hub_dev.g_external.v_cognite_t024i_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024I"
+
+    primary-key: "{T024I_PK}"
+
+  # T353I - Maintenance Activity Types (Categorizes asset work categories, e.g., breakdown, inspection)
+  - name: "extract-everest-T353I"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', ILART) AS T353I_PK, *
+      FROM hub_dev.g_external.v_cognite_t353i_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T353I"
+
+    primary-key: "{T353I_PK}"
+
+  # T356 - Priority Types for Maintenance (Calculates response windows and deadlines based on criticality profiles)
+  - name: "extract-everest-T356"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', ARTPR, '_', PRIOK) AS T356_PK, *
+      FROM hub_dev.g_external.v_cognite_t356_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T356"
+
+    primary-key: "{T356_PK}"
+
+  # T357 - Plant Sections (Defines organizational sub-areas within a physical facility layout)
+  - name: "extract-everest-T357"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WERKS, '_', BEBER) AS T357_PK, *
+      FROM hub_dev.g_external.v_cognite_t357_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T357"
+
+    primary-key: "{T357_PK}"
+
+  # T370F - Functional Location Naming Categories (Validates technical behavior variations for localization schemas)
+  - name: "extract-everest-T370F"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', FLTYP) AS T370F_PK, *
+      FROM hub_dev.g_external.v_cognite_t370f_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T370F"
+
+    primary-key: "{T370F_PK}"
+
+  # T370S - Functional Location Structure Indicators (Establishes character templates and edit masks for asset paths)
+  - name: "extract-everest-T370S"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLKZ) AS T370S_PK, *
+      FROM hub_dev.g_external.v_cognite_t370s_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T370S"
+
+    primary-key: "{T370S_PK}"
+
+  # T370T - Equipment Categories (Configures numbering structures and status rules for equipment records)
+  - name: "extract-everest-T370T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EQTYP) AS T370T_PK, *
+      FROM hub_dev.g_external.v_cognite_t370t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T370T"
+
+    primary-key: "{T370T_PK}"
+# PLANT MAINTENANCE END
+
+# QUALITY MANAGEMENT (QM) MASTER & TRANSACTION TABLES
+  # QAVE - Inspection Lot Usage Decision (Stores the final release, rejection, or scrap decision for a lot)
+  - name: "extract-everest-QAVE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PRUEFLOS) AS QAVE_PK, *
+      FROM hub_dev.g_external.v_cognite_qave_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QAVE"
+
+    primary-key: "{QAVE_PK}"
+
+  # QMAT - Inspection Type Parameters per Material (Controls which materials trigger quality lots by plant)
+  - name: "extract-everest-QMAT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', ART) AS QMAT_PK, *
+      FROM hub_dev.g_external.v_cognite_qmat_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMAT"
+
+    primary-key: "{QMAT_PK}"
+
+  # QMEL - Quality Notification Header (Central header for Customer Complaints, Vendor Defects, or Maintenance Issues)
+  - name: "extract-everest-QMEL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM) AS QMEL_PK, *
+      FROM hub_dev.g_external.v_cognite_qmel_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMEL"
+
+    primary-key: "{QMEL_PK}"
+
+  # QMFE - Quality Notification Items (Captures individual defect line entries and problem classifications)
+  - name: "extract-everest-QMFE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM, '_', FENUM) AS QMFE_PK, *
+      FROM hub_dev.g_external.v_cognite_qmfe_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMFE"
+
+    primary-key: "{QMFE_PK}"
+
+  # QMIH - Quality Notification Maintenance Data (Links quality alerts directly to PM equipment and layout spaces)
+  - name: "extract-everest-QMIH"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM) AS QMIH_PK, *
+      FROM hub_dev.g_external.v_cognite_qmih_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMIH"
+
+    primary-key: "{QMIH_PK}"
+
+  # QMSM - Quality Notification Tasks (Assigns actions, responsibilities, and deadlines to resolve issues)
+  - name: "extract-everest-QMSM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM, '_', MANUM) AS QMSM_PK, *
+      FROM hub_dev.g_external.v_cognite_qmsm_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMSM"
+
+    primary-key: "{QMSM_PK}"
+
+  # QMUR - Quality Notification Causes (Tracks root-cause analysis descriptions for logged defects)
+  - name: "extract-everest-QMUR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM, '_', FENUM, '_', URNUM) AS QMUR_PK, *
+      FROM hub_dev.g_external.v_cognite_qmur_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMUR"
+
+    primary-key: "{QMUR_PK}"
+
+  # QPCT - Quality Management Code Texts (Translates customized defect, cause, and task codes into descriptions)
+  - name: "extract-everest-QPCT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KATALOGART, '_', CODEGRUPPE, '_', CODE, '_', SPRACHE) AS QPCT_PK, *
+      FROM hub_dev.g_external.v_cognite_qpct_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPCT"
+
+    primary-key: "{QPCT_PK}"
+
+  # QPGR - Quality Management Code Groups (Defines catalog categories grouping operational codes together)
+  - name: "extract-everest-QPGR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KATALOGART, '_', CODEGRUPPE) AS QPGR_PK, *
+      FROM hub_dev.g_external.v_cognite_qpgr_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPGR"
+
+    primary-key: "{QPGR_PK}"
+
+  # QPGT - Code Group Short Texts (Language translations for QM catalog code group folders)
+  - name: "extract-everest-QPGT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KATALOGART, '_', CODEGRUPPE, '_', SPRACHE) AS QPGT_PK, *
+      FROM hub_dev.g_external.v_cognite_qpgt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPGT"
+
+    primary-key: "{QPGT_PK}"
+# QUALITY MANAGEMENT END
+
+# MATERIAL RESERVATIONS & DEMAND (MM/PP) TABLES
+  # RESB - Material Reservation Items (Tracks allocated inventory lines reserved for Orders or Cost Centers)
+  - name: "extract-everest-RESB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', RSNUM, '_', RSPOS, '_', RSART) AS RESB_PK, *
+      FROM hub_dev.g_external.v_cognite_resb_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_RESB"
+
+    primary-key: "{RESB_PK}"
+
+  # RKPF - Document Header for Material Reservations (Holds master tracking details for an inventory staging demand block)
+  - name: "extract-everest-RKPF"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', RSNUM) AS RKPF_PK, *
+      FROM hub_dev.g_external.v_cognite_rkpf_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_RKPF"
+
+    primary-key: "{RKPF_PK}"
+# RESERVATIONS END
+
+# SERIAL NUMBER MANAGEMENT (LO-MD-SN) TABLES
+  # SER01 - Serial Numbers for Delivery Documents (Maps unique serial number strings to outgoing logistics lines)
+  - name: "extract-everest-SER01"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LNUMMER, '_', POSNR) AS SER01_PK, *
+      FROM hub_dev.g_external.v_cognite_ser01_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER01"
+
+    primary-key: "{SER01_PK}"
+
+  # SER03 - Serial Numbers for Goods Movements (Links tracking tracking IDs to Inventory Material Documents)
+  - name: "extract-everest-SER03"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MBLNR, '_', MJAHR, '_', ZEILE) AS SER03_PK, *
+      FROM hub_dev.g_external.v_cognite_ser03_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER03"
+
+    primary-key: "{SER03_PK}"
+# SERIAL NUMBER MANAGEMENT END
