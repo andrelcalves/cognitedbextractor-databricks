@@ -1,0 +1,226 @@
+version: 1
+type: local
+
+logger:
+  console:
+    level: DEBUG
+
+  file:
+    level: DEBUG
+    path: "./dbextractor.log"
+    retention: 7
+
+cognite:
+  host: "https://az-phx-001.cognitedata.com"
+  project: "bdx-dev"
+  timeout: 3000
+
+  idp-authentication:
+    authority: "https://login.microsoftonline.com/"
+    tenant: ""
+    client-id: ""
+    secret: ""
+    scopes:
+      - "https://az-phx-001.cognitedata.com/.default"
+
+  connection:
+    disable-ssl: true
+  
+  data-set:
+    external-id: 'ds_databricks_everest_dat'
+
+  extraction-pipeline:
+    external-id: 'ep_databricks_everest_dbExtractor'
+
+databases:
+  - type: "odbc"
+    name: "db-databricks-raw"
+    connection-string: 
+      Driver={Databricks ODBC Driver};
+      Host=;
+      Port=443;
+      HTTPPath=;
+      SSL=1;
+      ThriftTransport=2;
+      AuthMech=3;
+      UID=token;
+      PWD= 
+
+queries:
+
+ #WORKCENTER TABLES  
+ # TC25 - Work Center Formulas
+  - name: "extract-everest-TC25"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', IDENT) AS TC25_PK, *
+      FROM hub_dev.g_external.v_cognite_tc25_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TC25"
+
+    primary-key: "{TC25_PK}"
+
+# CRHD - Work Center Header
+  - name: "extract-everest-CRHD"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', BEGDA, '_', ENDDA) AS CRHD_PK, *
+      FROM hub_dev.g_external.v_cognite_crhd_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRHD"
+
+    primary-key: "{CRHD_PK}"
+  
+# CRTX - Text for the Work Center or Production Resource/Tool
+  - name: "extract-everest-CRTX"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', SPRAS) AS CRTX_PK, *
+      FROM hub_dev.g_external.v_cognite_crtx_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRTX"
+
+    primary-key: "{CRTX_PK}"
+  
+# CRCO - Assignment of Work Center to Cost Center
+  - name: "extract-everest-CRCO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', LASET, '_', ENDDA, '_', LANUM) AS CRCO_PK, *
+      FROM hub_dev.g_external.v_cognite_crco_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRCO"
+
+    primary-key: "{CRCO_PK}"
+  
+# CRCA - Work Center Capacity Allocation
+  - name: "extract-everest-CRCA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', CANUM) AS CRCA_PK, *
+      FROM hub_dev.g_external.v_cognite_crca_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRCA"
+
+    primary-key: "{CRCA_PK}"
+# WORKCENTER END
+
+# COSTCENTER TABLES  
+  # CSKS - Cost Center Master Data  
+  - name: "extract-everest-CSKS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KOKRS, '_', KOSTL, '_', DATBI) AS CSKS_PK, *
+      FROM hub_dev.g_external.v_cognite_csks_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CSKS"
+
+    primary-key: "{CSKS_PK}"
+
+  # CSKT - Cost Center Texts 
+  - name: "extract-everest-CSKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', KOKRS, '_', KOSTL, '_', DATBI) AS CSKT_PK, *
+      FROM hub_dev.g_external.v_cognite_cskt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CSKT"
+
+    primary-key: "{CSKT_PK}"
+# END COSTCENTER
+
+# FUNCTION LOCATION TABLES
+  # IFLOT - Functional Location Master Data
+  - name: "extract-everest-IFLOT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_' , TPLNR) AS IFLOS_PK, *
+      FROM hub_dev.g_external.v_cognite_iflot_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOT"
+
+    primary-key: "{IFLOT_PK}"
+
+  # IFLOTX - Functional Location Short Texts
+  - name: "extract-everest-IFLOTX"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLNR, '_', SPRAS) AS IFLOTX_PK, *
+      FROM hub_dev.g_external.v_cognite_iflotx_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOTX"
+
+    primary-key: "{IFLOTX_PK}"
+
+  # IFLOS - Functional Location Alternative Labels
+  - name: "extract-everest-IFLOS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_' , TPLNR, '_', ALKEY , '_', VERSN) AS IFLOS_PK, *
+      FROM hub_dev.g_external.v_cognite_iflos_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOS"
+
+    primary-key: "{IFLOS_PK}"
+
+# END FUNCTIONAL LOCATION
