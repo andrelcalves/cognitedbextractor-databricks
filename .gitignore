@@ -1,0 +1,6 @@
+# Logs do extractor - o nivel DEBUG registra client_id e dados de conexao
+*.log
+
+# Artefatos locais
+__pycache__/
+*.pyc

@@ -11,6 +11,7 @@ Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_evere
 |------|------|
 | `sap/config.yaml` | Extract config (149 categorized queries), blanked connection endpoint |
 | `sap/prompt.md` | Authoring instructions for YAML merges |
+| `sap/LOAD-STRATEGY.md` | Volume tiers per view and proposed load strategy |
 | `sap/PRD.md` | This document — extract rules |
 
 ---
@@ -25,7 +26,7 @@ Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_evere
 - Where the SAP reference differs between ECC and S/4HANA, prefer the key fields that exist in both releases (e.g. `VBFA` uses `VBELV, POSNV, VBELN, POSNN, VBTYP_N` rather than the S/4-only `RUUID`).
 
 ### R2 — Rolling 1-year filter on DATETIMESTAMP
-- All extract queries (all 149 tables) MUST filter to the last year of data.
+- Extract queries for Tiers 2–5 and the unmeasured views (98 tables) MUST filter to the last year of data. Tier 1 is exempt — see R2c.
 - Use a rolling window relative to extraction time:
   - `current_timestamp() - INTERVAL 1 YEAR`
 - Filter field: `DATETIMESTAMP`.
@@ -43,13 +44,25 @@ WHERE coalesce(
 
 - Rows with null or unparseable `DATETIMESTAMP` MUST be excluded.
 
+### R2b — Temporary 10-row cap (availability validation)
+- The 1-year window alone still exceeds acceptable volume on the largest tables.
+- While validating that every view is reachable in Databricks, queries end with `LIMIT 10`.
+- Exception: the 51 Tier 1 tables (under 1 million rows, see `LOAD-STRATEGY.md`) carry no cap. They are small enough to load in full, so the cap suppressed data without saving meaningful time. 98 of the 149 queries still carry `LIMIT 10`.
+- Where present, the cap makes the extract a connectivity/schema smoke test, **not** a usable data load, and MUST be removed before any production extract run.
+- Note: `LIMIT` is applied after the `WHERE` clause, so the source table is still fully scanned. If scan cost becomes the blocker, drop the `WHERE` clause for the smoke test instead.
+
+### R2c — Tier 1 loads full, unfiltered
+- The 51 Tier 1 tables (under 1 million rows, see `LOAD-STRATEGY.md`) MUST NOT carry the R2 filter. Their queries are `SELECT ... FROM ...` with no `WHERE` clause.
+- Rationale: the tier totals 5.6 million rows, so a full reload is cheap. More importantly, these are mostly customizing and master data tables that rarely change, so a 1-year window on `DATETIMESTAMP` silently returns few or zero rows — `IFLOS` returned 0 rows in the 2026-07-27 run for exactly this reason.
+- A table moving out of Tier 1 after a re-count MUST have the R2 filter reinstated.
+
 ### R3 — Query naming, destinations, and categorization
 - Query name pattern: `extract-everest-{TABLE}`
 - Destination database: `db_databricks_everest_raw`
 - Destination table pattern: `tb_{TABLE}`
 - Source view pattern: `hub_dev.g_external.v_cognite_{table_lower}_everest`
 - Queries MUST be grouped by SAP functional area with paired category comments (header + end).
-- Each query MUST have a one-line `# TABLE - description` comment immediately above it.
+- Each query MUST have a one-line `# TABLE - description [TIER n | count linhas]` comment immediately above it. The tier and count come from `sap/LOAD-STRATEGY.md`; views with no measured count use `[TIER ? | sem contagem]`.
 
 ### R4 — Blanked connection endpoint in committed configs
 - Committed YAML MUST NOT contain live Databricks `Host` or `HTTPPath` values.
@@ -67,6 +80,7 @@ WHERE coalesce(
         try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
         try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
       ) >= current_timestamp() - INTERVAL 1 YEAR
+LIMIT 10
 ```
 
 ---
@@ -74,4 +88,4 @@ WHERE coalesce(
 ## Out of scope
 - Runtime credential injection (handled outside git)
 - Incremental watermarking beyond the rolling 1-year window
-- Per-table exceptions to R2 (filter applies to all extracts)
+- Per-table exceptions to R2 beyond the Tier 1 exemption in R2c
