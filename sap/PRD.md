@@ -24,6 +24,10 @@ Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_evere
 - Cognite field: `primary-key: "{TABLE}_PK"`.
 - Key field choices follow the SAP table reference. Tables whose client field is named `CLIENT` instead of `MANDT` (e.g. `T003P`) use `CLIENT` as the first component.
 - Where the SAP reference differs between ECC and S/4HANA, prefer the key fields that exist in both releases (e.g. `VBFA` uses `VBELV, POSNV, VBELN, POSNN, VBTYP_N` rather than the S/4-only `RUUID`).
+- When the Databricks view renames a key column, the PK MUST use the **view column name**, not the classic SAP dictionary name. Known cases from the 2026-07-28 run:
+  - Client field `MANDANT` instead of `MANDT`: `QALS`, `QAMR`, `QAVE`, `QPGT`
+  - `WPPOS` instead of `WAPOS`: `MHIO`
+  - `PERBL` instead of `PERIO`: `PMCO`
 
 ### R2 — Rolling 1-year filter on DATETIMESTAMP
 - Extract queries for Tiers 2–5 and the unmeasured views (98 tables) MUST filter to the last year of data. Tier 1 is exempt — see R2c.
