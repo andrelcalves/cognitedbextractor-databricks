@@ -1,7 +1,7 @@
 """
-Count rows for SAP Everest views in Databricks via ODBC.
+Count rows for JDE NA views in Databricks via ODBC.
 
-Credentials (env vars, same shape as sap/config.yaml ODBC block):
+Credentials (env vars, same shape as jde-na/config.yaml ODBC block):
   DATABRICKS_HOST
   DATABRICKS_HTTP_PATH
   DATABRICKS_TOKEN
@@ -19,19 +19,16 @@ import os
 import sys
 import time
 from datetime import datetime, timezone
+from typing import Any
 
-try:
-    import pyodbc
-except ImportError:
-    print("pyodbc is required. Install with: pip install pyodbc", file=sys.stderr)
-    sys.exit(1)
-
-# Initial set: the three tables that still failed PK resolution on 2026-07-29.
-# Add more entries as (label, fully_qualified_view) when needed.
+# Same 30 views as jde-na/config.yaml (spreadsheet order).
+_TABLE_IDS = [
+    "F42019", "F42119", "F4108", "F3002", "F4111", "F41021", "F4101", "F0006", "F0010", "F4102",
+    "F0101", "F03012", "F4105", "F30026", "F4801", "F3111", "F3112", "F3003", "F30008", "F0911",
+    "F3411", "F4301", "F4311", "F43199", "F43092", "F43121", "F4201", "F4211", "F41002", "F40072",
+]
 TABLES: list[tuple[str, str]] = [
-    ("MHIO", "hub_dev.g_external.v_cognite_mhio_everest"),
-    ("PMCO", "hub_dev.g_external.v_cognite_pmco_everest"),
-    ("QAMR", "hub_dev.g_external.v_cognite_qamr_everest"),
+    (t, f"hub_dev.g_external.v_cognite_{t}_jdena") for t in _TABLE_IDS
 ]
 
 
@@ -68,13 +65,19 @@ def connection_string() -> str:
     )
 
 
-def count_rows(cursor: pyodbc.Cursor, view: str) -> int:
+def count_rows(cursor: Any, view: str) -> int:
     cursor.execute(f"SELECT COUNT(*) FROM {view}")
     row = cursor.fetchone()
     return int(row[0])
 
 
 def main() -> int:
+    try:
+        import pyodbc
+    except ImportError:
+        print("pyodbc is required. Install with: pip install pyodbc", file=sys.stderr)
+        return 1
+
     started = datetime.now(timezone.utc)
     print(f"Started (UTC): {started.isoformat()}")
     print(f"Tables: {len(TABLES)}")
