@@ -451,11 +451,11 @@ queries:
     primary-key: "{MPOS_PK}"
 
 # MHIO - Maintenance Order Call Object [TIER 2 | 5.186.856 linhas]
-# View column WPPOS (SAP dictionary name is WAPOS)
+# View column WPPOS (SAP dictionary name is WAPOS); LFDAT is not a key and not in the view
   - name: "extract-everest-MHIO"
     database: "db-databricks-raw"
     query: >
-      SELECT CONCAT(MANDT, '_', WARPL, '_', WPPOS, '_', ABNUM, '_', LFDAT) AS MHIO_PK, *
+      SELECT CONCAT(MANDT, '_', WARPL, '_', ABNUM, '_', WPPOS) AS MHIO_PK, *
       FROM hub_dev.g_external.v_cognite_mhio_everest
       WHERE coalesce(
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
@@ -816,11 +816,11 @@ queries:
     primary-key: "{KEKO_PK}"
 
 # PMCO - Cost Structure of Maintenance Order [TIER 3 | 12.346.036 linhas]
-# View column PERBL (SAP dictionary name is PERIO)
+# Full SAP key; PERBL (not PERIO); F_OBJNR is not in the view
   - name: "extract-everest-PMCO"
     database: "db-databricks-raw"
     query: >
-      SELECT CONCAT(MANDT, '_', OBJNR, '_', BELTP, '_', WRTTP, '_', GJAHR, '_', PERBL, '_', F_OBJNR) AS PMCO_PK, *
+      SELECT CONCAT(MANDT, '_', OBJNR, '_', COCUR, '_', BELTP, '_', WRTTP, '_', GJAHR, '_', ACPOS, '_', VERSN, '_', PERBL, '_', VORGA, '_', BEMOT, '_', ABKAT) AS PMCO_PK, *
       FROM hub_dev.g_external.v_cognite_pmco_everest
       WHERE coalesce(
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
@@ -1945,11 +1945,11 @@ queries:
     primary-key: "{QALS_PK}"
 
 # QAMR - Characteristic Results During Inspection [TIER 3 | 46.452.589 linhas]
-# View client column is MANDANT (not MANDT)
+# View client column is MANDANT (not MANDT); DETAILERG is not a key and not in the view
   - name: "extract-everest-QAMR"
     database: "db-databricks-raw"
     query: >
-      SELECT CONCAT(MANDANT, '_', PRUEFLOS, '_', VORGLFNR, '_', MERKNR, '_', DETAILERG) AS QAMR_PK, *
+      SELECT CONCAT(MANDANT, '_', PRUEFLOS, '_', VORGLFNR, '_', MERKNR) AS QAMR_PK, *
       FROM hub_dev.g_external.v_cognite_qamr_everest
       WHERE coalesce(
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
