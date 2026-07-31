@@ -38,7 +38,13 @@ Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_evere
 - `DATETIMESTAMP` may appear in either format:
   - with fractional seconds: `2026-07-14 05:40:39.340502`
   - without fractional seconds: `2024-11-18 17:57:50`
-- Queries MUST normalize both formats before comparison using:
+- **Preferred (sargable) form** — applied on Tier 2. Because the string is zero-padded, lexicographic order matches timestamp order across both formats:
+
+```sql
+WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+```
+
+- **Legacy form** — still present on Tiers 3–5 and unmeasured views until those tiers are opened. Do not introduce it on new or Tier 2 queries:
 
 ```sql
 WHERE coalesce(
@@ -47,12 +53,12 @@ WHERE coalesce(
       ) >= current_timestamp() - INTERVAL 1 YEAR
 ```
 
-- Rows with null or unparseable `DATETIMESTAMP` MUST be excluded.
+- Rows with null or unparseable `DATETIMESTAMP` are excluded by the comparison (nulls fail `>=`).
 
 ### R2b — Temporary 10-row cap (availability validation)
 - The 1-year window alone still exceeds acceptable volume on the largest tables.
 - While validating that every view is reachable in Databricks, queries end with `LIMIT 10`.
-- Exception: the 51 Tier 1 tables (under 1 million rows, see `LOAD-STRATEGY.md`) carry no cap. They are small enough to load in full, so the cap suppressed data without saving meaningful time. 98 of the 149 queries still carry `LIMIT 10`.
+- Exceptions (no cap): Tier 1 (51 tables, R2c) and Tier 2 (33 tables — production 1-year load). **65** of the 149 queries still carry `LIMIT 10` (Tiers 3–5 + unmeasured).
 - Where present, the cap makes the extract a connectivity/schema smoke test, **not** a usable data load, and MUST be removed before any production extract run.
 - Note: `LIMIT` is applied after the `WHERE` clause, so the source table is still fully scanned. If scan cost becomes the blocker, drop the `WHERE` clause for the smoke test instead.
 
@@ -78,14 +84,19 @@ WHERE coalesce(
 
 ## Example query shape
 
+Tier 2 (sargable 1-year window, no `LIMIT`):
+
 ```sql
-SELECT CONCAT(MANDT, '_', WEBLNR, '_', WEBLPOS) AS AFFW_PK, *
-FROM hub_dev.g_external.v_cognite_affw_everest
-WHERE coalesce(
-        try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-        try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-      ) >= current_timestamp() - INTERVAL 1 YEAR
-LIMIT 10
+SELECT CONCAT(MANDT, '_', EQUNR) AS EQUI_PK, *
+FROM hub_dev.g_external.v_cognite_equi_everest
+WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+```
+
+Tier 1 (full load, no filter):
+
+```sql
+SELECT CONCAT(MANDT, '_', MATNR) AS MARA_PK, *
+FROM hub_dev.g_external.v_cognite_mara_everest
 ```
 
 ---

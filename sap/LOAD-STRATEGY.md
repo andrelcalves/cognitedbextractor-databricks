@@ -133,6 +133,8 @@ Cinco destas — COSP, AUFM, AUSP, CKIS e AFRU — já estão em produção hoje
 
 Migrar para incremental aqui é opcional e só se justifica se o tempo total de janela ainda incomodar depois que os Tiers 4 e 5 estiverem resolvidos.
 
+> **Status: aplicado.** As 33 queries do Tier 2 usam o filtro sargável `DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')` e não têm `LIMIT 10`.
+
 ---
 
 ## Tier 1 — abaixo de 1 milhão
@@ -297,11 +299,11 @@ Já aplicado em `config.yaml`:
 
 - Tag de tier no comentário das 149 queries, no formato `# TABELA - descrição [TIER n | contagem linhas]`.
 - Tier 1 sem `WHERE` e sem `LIMIT 10` (51 queries), conforme a regra R2c do `PRD.md`.
+- Tier 2 com filtro sargável de 1 ano e sem `LIMIT 10` (33 queries).
 
 Fica para uma etapa posterior, após a discussão com o time:
 
-- Reescrever o filtro para a forma sargável nas 98 queries que ainda o têm.
+- Reescrever o filtro para a forma sargável e remover o `LIMIT 10` nas 65 queries restantes (Tiers 3–5 + sem contagem).
 - Configurar a seção `extractor` com `state-store`, e definir `parallelism` e `upload-queue-size`.
 - Adicionar `incremental-field`, `initial-start` e `schedule` nas queries dos Tiers 3, 4 e 5.
 - Definir a projeção de colunas das views dos Tiers 4 e 5.
-- Remover o `LIMIT 10` das 98 queries restantes antes de qualquer carga de produção.

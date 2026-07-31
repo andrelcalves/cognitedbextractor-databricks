@@ -327,11 +327,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', EQUNR) AS EQUI_PK, *
       FROM hub_dev.g_external.v_cognite_equi_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -344,11 +340,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', EQUNR, '_', DATBI, '_', EQLFN) AS EQUZ_PK, *
       FROM hub_dev.g_external.v_cognite_equz_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -361,11 +353,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', EQUNR, '_', SPRAS) AS EQKT_PK, *
       FROM hub_dev.g_external.v_cognite_eqkt_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -457,11 +445,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', WARPL, '_', ABNUM, '_', WPPOS) AS MHIO_PK, *
       FROM hub_dev.g_external.v_cognite_mhio_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -474,11 +458,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', WARPL, '_', ABNUM, '_', ZAEHL) AS MHIS_PK, *
       FROM hub_dev.g_external.v_cognite_mhis_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -512,11 +492,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', AUFNR) AS AFIH_PK, *
       FROM hub_dev.g_external.v_cognite_afih_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -546,11 +522,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', AUFNR, '_', POSNR) AS AFPO_PK, *
       FROM hub_dev.g_external.v_cognite_afpo_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -631,11 +603,7 @@ queries:
     query: >          
       SELECT CONCAT(MANDT, '_', WEBLNR, '_', WEBLPOS) AS AFFW_PK, *
       FROM hub_dev.g_external.v_cognite_affw_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -855,11 +823,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', PLNKN, '_', ZAEHL) AS PLAS_PK, *
       FROM hub_dev.g_external.v_cognite_plas_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -872,11 +836,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', PLNKN) AS PLPO_PK, *
       FROM hub_dev.g_external.v_cognite_plpo_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -901,11 +861,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', ZUONR, '_', ZAEHL) AS PLMZ_PK, *
       FROM hub_dev.g_external.v_cognite_plmz_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -930,11 +886,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', ZAEHL) AS MAPL_PK, *
       FROM hub_dev.g_external.v_cognite_mapl_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1031,11 +983,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', STLTY, '_', STLNR, '_', STLAL, '_', STKOZ) AS STKO_PK, *
       FROM hub_dev.g_external.v_cognite_stko_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1086,11 +1034,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', MATNR) AS MARA_PK, *
       FROM hub_dev.g_external.v_cognite_mara_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1103,11 +1047,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', MATNR, '_', SPRAS) AS MAKT_PK, *
       FROM hub_dev.g_external.v_cognite_makt_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1120,11 +1060,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS) AS MARC_PK, *
       FROM hub_dev.g_external.v_cognite_marc_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1154,11 +1090,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', MATNR, '_', MEINH) AS MARM_PK, *
       FROM hub_dev.g_external.v_cognite_marm_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1171,11 +1103,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', MATNR, '_', BWKEY, '_', BWTAR) AS MBEW_PK, *
       FROM hub_dev.g_external.v_cognite_mbew_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1204,11 +1132,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', MATNR, '_', CHARG) AS MCH1_PK, *
       FROM hub_dev.g_external.v_cognite_mch1_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1276,11 +1200,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', LQNUM) AS LQUA_PK, *
       FROM hub_dev.g_external.v_cognite_lqua_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1364,11 +1284,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', DTNUM) AS MDKP_PK, *
       FROM hub_dev.g_external.v_cognite_mdkp_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1469,11 +1385,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', EBELN) AS EKKO_PK, *
       FROM hub_dev.g_external.v_cognite_ekko_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1503,11 +1415,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', EBELN, '_', EBELP, '_', ZEKKN) AS EKKN_PK, *
       FROM hub_dev.g_external.v_cognite_ekkn_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1554,11 +1462,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', INFNR) AS EINA_PK, *
       FROM hub_dev.g_external.v_cognite_eina_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1571,11 +1475,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', INFNR, '_', EKORG, '_', ESOKZ, '_', WERKS) AS EINE_PK, *
       FROM hub_dev.g_external.v_cognite_eine_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1604,11 +1504,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', KUNNR) AS KNA1_PK, *
       FROM hub_dev.g_external.v_cognite_kna1_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1621,11 +1517,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', KUNNR, '_', VKORG, '_', VTWEG, '_', SPART) AS KNVV_PK, *
       FROM hub_dev.g_external.v_cognite_knvv_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1857,11 +1749,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', QMNUM) AS QMEL_PK, *
       FROM hub_dev.g_external.v_cognite_qmel_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1886,11 +1774,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', QMNUM) AS QMIH_PK, *
       FROM hub_dev.g_external.v_cognite_qmih_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1903,11 +1787,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', QMNUM, '_', MANUM) AS QMSM_PK, *
       FROM hub_dev.g_external.v_cognite_qmsm_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -1986,11 +1866,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', ART, '_', MATNR, '_', WERKS) AS QMAT_PK, *
       FROM hub_dev.g_external.v_cognite_qmat_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -2056,11 +1932,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', OBKNR, '_', OBZAE) AS OBJK_PK, *
       FROM hub_dev.g_external.v_cognite_objk_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
@@ -2085,11 +1957,7 @@ queries:
     query: >
       SELECT CONCAT(MANDT, '_', OBKNR) AS SER03_PK, *
       FROM hub_dev.g_external.v_cognite_ser03_everest
-      WHERE coalesce(
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
-              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
-            ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
     destination:
       type: "raw"
       database: "db_databricks_everest_raw"
