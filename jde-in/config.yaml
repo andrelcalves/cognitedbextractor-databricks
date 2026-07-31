@@ -1,0 +1,364 @@
+version: 1
+type: local
+
+logger:
+  console:
+    level: DEBUG
+
+  file:
+    level: DEBUG
+    path: "./dbextractor.log"
+    retention: 7
+
+cognite:
+  host: "https://az-phx-001.cognitedata.com"
+  project: "bdx-dev"
+  timeout: 3000
+
+  idp-authentication:
+    authority: "https://login.microsoftonline.com/"
+    tenant: ""
+    client-id: ""
+    secret: ""
+    scopes:
+      - "https://az-phx-001.cognitedata.com/.default"
+
+  connection:
+    disable-ssl: true
+
+  data-set:
+    external-id: 'ds_databricks_jde_in_dat'
+
+  extraction-pipeline:
+    external-id: 'ep_databricks_jde_in_dbExtractor'
+
+databases:
+  - type: "odbc"
+    name: "db-databricks-raw"
+    connection-string:
+      Driver={Databricks ODBC Driver};
+      Host=;
+      Port=443;
+      HTTPPath=;
+      SSL=1;
+      ThriftTransport=2;
+      AuthMech=3;
+      UID=token;
+      PWD=
+
+queries:
+# SALES ORDER TABLES
+
+# PK uses SD* columns (view schema from NA smoke test; classic ledger prefix is SL)
+# F42119 - Sales Order Detail Ledger
+  - name: "extract-jdein-F42119"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(SDDOCO, '_', SDDCTO, '_', SDKCOO, '_', SDLNID) AS F42119_PK, *
+      FROM hub_dev.g_external.v_cognite_f42119_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F42119"
+
+    primary-key: "{F42119_PK}"
+
+# END SALES ORDER TABLES
+
+# INVENTORY & ITEM TABLES
+
+# F4108 - Lot Master
+  - name: "extract-jdein-F4108"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(IOLOTN, '_', IOITM, '_', IOMCU) AS F4108_PK, *
+      FROM hub_dev.g_external.v_cognite_f4108_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F4108"
+
+    primary-key: "{F4108_PK}"
+
+# END INVENTORY & ITEM TABLES
+
+# MANUFACTURING
+
+# F3002 - Bill of Material Master
+  - name: "extract-jdein-F3002"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(IXKIT, '_', IXMMCU, '_', IXTBM, '_', IXBQTY, '_', IXCPNB, '_', IXSBNT, '_', IXCOBY) AS F3002_PK, *
+      FROM hub_dev.g_external.v_cognite_f3002_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F3002"
+
+    primary-key: "{F3002_PK}"
+
+# END MANUFACTURING
+
+# INVENTORY & ITEM TABLES
+
+# F4111 - Item Ledger
+  - name: "extract-jdein-F4111"
+    database: "db-databricks-raw"
+    query: >
+      SELECT ILUKID AS F4111_PK, *
+      FROM hub_dev.g_external.v_cognite_f4111_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F4111"
+
+    primary-key: "{F4111_PK}"
+
+# END INVENTORY & ITEM TABLES
+
+# ADDRESS BOOK & ORGANIZATION
+
+# F0010 - Company Constants
+  - name: "extract-jdein-F0010"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CCCO AS F0010_PK, *
+      FROM hub_dev.g_external.v_cognite_f0010_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F0010"
+
+    primary-key: "{F0010_PK}"
+
+# END ADDRESS BOOK & ORGANIZATION
+
+# INVENTORY & ITEM TABLES
+
+# F4102 - Item Branch
+  - name: "extract-jdein-F4102"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(IBITM, '_', IBMCU) AS F4102_PK, *
+      FROM hub_dev.g_external.v_cognite_f4102_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F4102"
+
+    primary-key: "{F4102_PK}"
+
+# END INVENTORY & ITEM TABLES
+
+# ADDRESS BOOK & ORGANIZATION
+
+# F03012 - Customer Master by Line of Business
+  - name: "extract-jdein-F03012"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(AIAN8, '_', AICO) AS F03012_PK, *
+      FROM hub_dev.g_external.v_cognite_f03012_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F03012"
+
+    primary-key: "{F03012_PK}"
+
+# END ADDRESS BOOK & ORGANIZATION
+
+# MANUFACTURING
+
+# F30026 - Item Cost Component Add-Ons
+  - name: "extract-jdein-F30026"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(IEITM, '_', IEMMCU, '_', IELOCN, '_', IELOTN, '_', IELEDG, '_', IECOST) AS F30026_PK, *
+      FROM hub_dev.g_external.v_cognite_f30026_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F30026"
+
+    primary-key: "{F30026_PK}"
+
+# F3003 - Routing Master
+  - name: "extract-jdein-F3003"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(IRMMCU, '_', IRKIT, '_', IRTRT, '_', IRBQTY, '_', IROPSQ, '_', IROPSC, '_', IRLINE, '_', IREFFF) AS F3003_PK, *
+      FROM hub_dev.g_external.v_cognite_f3003_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F3003"
+
+    primary-key: "{F3003_PK}"
+
+# END MANUFACTURING
+
+# PURCHASING
+
+# F4301 - Purchase Order Header
+  - name: "extract-jdein-F4301"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(PHDOCO, '_', PHDCTO, '_', PHKCOO, '_', PHSFXO) AS F4301_PK, *
+      FROM hub_dev.g_external.v_cognite_f4301_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F4301"
+
+    primary-key: "{F4301_PK}"
+
+# END PURCHASING
+
+# SALES ORDER TABLES
+
+# F4201 - Sales Order Header
+  - name: "extract-jdein-F4201"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(SHDOCO, '_', SHDCTO, '_', SHKCOO, '_', SHSFXO) AS F4201_PK, *
+      FROM hub_dev.g_external.v_cognite_f4201_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F4201"
+
+    primary-key: "{F4201_PK}"
+
+# F4211 - Sales Order Detail
+  - name: "extract-jdein-F4211"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(SDDOCO, '_', SDDCTO, '_', SDKCOO, '_', SDLNID) AS F4211_PK, *
+      FROM hub_dev.g_external.v_cognite_f4211_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F4211"
+
+    primary-key: "{F4211_PK}"
+
+# END SALES ORDER TABLES
+
+# INVENTORY & ITEM TABLES
+
+# PK uses UMRUM (NA smoke test: UMCUOM not in view)
+# F41002 - Unit of Measure Conversion
+  - name: "extract-jdein-F41002"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(UMITM, '_', UMRUM, '_', UMUM) AS F41002_PK, *
+      FROM hub_dev.g_external.v_cognite_f41002_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F41002"
+
+    primary-key: "{F41002_PK}"
+
+# F40072 - Item Preference Groups
+  - name: "extract-jdein-F40072"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(GIITM, '_', GIPRFR) AS F40072_PK, *
+      FROM hub_dev.g_external.v_cognite_f40072_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F40072"
+
+    primary-key: "{F40072_PK}"
+
+# F40306 - Preference Profile - Inventory Sourcing
+  - name: "extract-jdein-F40306"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(SRAN8, '_', SRCS06, '_', SRITM, '_', SRIT06, '_', SREXDJ, '_', SRUOM, '_', SRMXQ, '_', SROSEQ) AS F40306_PK, *
+      FROM hub_dev.g_external.v_cognite_f40306_jdeint
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_jde_in_raw"
+      table: "tb_F40306"
+
+    primary-key: "{F40306_PK}"
+
+# END INVENTORY & ITEM TABLES
