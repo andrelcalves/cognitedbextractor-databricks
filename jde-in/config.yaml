@@ -60,7 +60,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -82,7 +81,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -104,7 +102,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -126,7 +123,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -148,7 +144,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -170,7 +165,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -192,7 +186,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -214,7 +207,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -232,7 +224,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -254,7 +245,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -276,7 +266,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -294,7 +283,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -317,7 +305,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -335,7 +322,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
@@ -353,7 +339,6 @@ queries:
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
               try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
             ) >= current_timestamp() - INTERVAL 1 YEAR
-      LIMIT 10
     destination:
       type: "raw"
       database: "db_databricks_jde_in_raw"
