@@ -63,7 +63,36 @@ queries:
   - name: "extract-everest-TVSB"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, VSBED), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_tvsb_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -82,7 +111,36 @@ queries:
   - name: "extract-everest-TQ80"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, QMART), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_tq80_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -101,7 +159,36 @@ queries:
   - name: "extract-everest-T001K"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, BWKEY), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t001k_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -120,7 +207,36 @@ queries:
   - name: "extract-everest-T006"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, MSEHI), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t006_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -139,7 +255,36 @@ queries:
   - name: "extract-everest-T024"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, EKGRP), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t024_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -158,7 +303,36 @@ queries:
   - name: "extract-everest-QPGR"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, KATALOGART, CODEGRUPPE), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_qpgr_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -177,7 +351,36 @@ queries:
   - name: "extract-everest-KAKO"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, KAPID), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_kako_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -196,7 +399,36 @@ queries:
   - name: "extract-everest-CRTX"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, OBJTY, OBJID, SPRAS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_crtx_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -215,7 +447,36 @@ queries:
   - name: "extract-everest-KAZY"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, KAPID, VERSN, DATUB), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_kazy_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -234,7 +495,36 @@ queries:
   - name: "extract-everest-IFLOTX"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, TPLNR, SPRAS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_iflotx_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -253,7 +543,36 @@ queries:
   - name: "extract-everest-MPLA"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, WARPL), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mpla_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -272,7 +591,36 @@ queries:
   - name: "extract-everest-SER05"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, OBKNR), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_ser05_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -291,7 +639,36 @@ queries:
   - name: "extract-everest-CSKT"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, SPRAS, KOKRS, KOSTL, DATBI), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_cskt_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -310,7 +687,36 @@ queries:
   - name: "extract-everest-PLWP"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, PLNTY, PLNNR, PLNAL, PLNFL, PLNKN, PAKET, ZAEHL), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_plwp_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -329,7 +735,36 @@ queries:
   - name: "extract-everest-MKAL"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, MATNR, WERKS, VERID), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mkal_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -348,7 +783,36 @@ queries:
   - name: "extract-everest-QPCT"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, KATALOGART, CODEGRUPPE, CODE, SPRACHE, VERSION), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_qpct_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -367,7 +831,36 @@ queries:
   - name: "extract-everest-MAST"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, MATNR, WERKS, STLAN, STLNR, STLAL), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mast_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -389,7 +882,36 @@ queries:
   - name: "extract-everest-AFRC"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, AUFNR, RUECK, RMZHL), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_afrc_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -408,7 +930,36 @@ queries:
   - name: "extract-everest-IFLOS"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, TPLNR, ALKEY, VERSN), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_iflos_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -427,7 +978,36 @@ queries:
   - name: "extract-everest-T156HT"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, SPRAS, BWART), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t156ht_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -446,7 +1026,36 @@ queries:
   - name: "extract-everest-T301"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, LGNUM, LGTYP), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t301_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -465,7 +1074,36 @@ queries:
   - name: "extract-everest-T357"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, WERKS, BEBER), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t357_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -484,7 +1122,36 @@ queries:
   - name: "extract-everest-T370T"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, EQTYP), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t370t_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -503,7 +1170,36 @@ queries:
   - name: "extract-everest-T430"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, PLNAW, STEUS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_t430_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -522,7 +1218,36 @@ queries:
   - name: "extract-everest-TC25T"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, SPRAS, IDENT), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_tc25t_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -544,7 +1269,36 @@ queries:
   - name: "extract-everest-AFFW"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, WEBLNR, WEBLPOS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_affw_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -563,7 +1317,36 @@ queries:
   - name: "extract-everest-STKO"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, STLTY, STLNR, STLAL, STKOZ), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_stko_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -582,7 +1365,36 @@ queries:
   - name: "extract-everest-KNA1"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, KUNNR), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_kna1_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -601,7 +1413,36 @@ queries:
   - name: "extract-everest-SER03"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, OBKNR), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_ser03_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -620,7 +1461,36 @@ queries:
   - name: "extract-everest-QMAT"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, ART, MATNR, WERKS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_qmat_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -639,7 +1509,36 @@ queries:
   - name: "extract-everest-EINE"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, INFNR, EKORG, ESOKZ, WERKS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_eine_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -658,7 +1557,36 @@ queries:
   - name: "extract-everest-MDKP"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, DTNUM), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mdkp_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -677,7 +1605,36 @@ queries:
   - name: "extract-everest-PLAS"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, PLNTY, PLNNR, PLNKN, ZAEHL), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_plas_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -696,7 +1653,36 @@ queries:
   - name: "extract-everest-MHIO"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, WARPL, ABNUM, WPPOS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mhio_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -715,7 +1701,36 @@ queries:
   - name: "extract-everest-AFPO"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, AUFNR, POSNR), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_afpo_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -734,7 +1749,36 @@ queries:
   - name: "extract-everest-MCH1"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, MATNR, CHARG), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mch1_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -756,7 +1800,36 @@ queries:
   - name: "extract-everest-ILOA"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, ILOAN), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_iloa_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -775,7 +1848,36 @@ queries:
   - name: "extract-everest-AFKO"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, AUFNR), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_afko_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -794,7 +1896,36 @@ queries:
   - name: "extract-everest-VBAK"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, VBELN), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_vbak_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -813,7 +1944,36 @@ queries:
   - name: "extract-everest-STPO"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, STLTY, STLNR, STLKN, STPOZ), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_stpo_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -832,7 +1992,36 @@ queries:
   - name: "extract-everest-MARD"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, MATNR, WERKS, LGORT), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mard_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -851,7 +2040,36 @@ queries:
   - name: "extract-everest-STAS"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, STLTY, STLNR, STLAL, STLKN, STASZ), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_stas_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -870,7 +2088,36 @@ queries:
   - name: "extract-everest-EKBE"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, EBELN, EBELP, ZEKKN, VGABE, GJAHR, BELNR, BUZEI), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_ekbe_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -889,7 +2136,36 @@ queries:
   - name: "extract-everest-KEKO"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, BZOBJ, KALNR, KALKA, KADKY, TVERS, BWVAR, KKZMA), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_keko_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -908,7 +2184,36 @@ queries:
   - name: "extract-everest-AFVV"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, AUFPL, APLZL), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_afvv_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -930,7 +2235,36 @@ queries:
   - name: "extract-everest-AFRU"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, RUECK, RMZHL), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_afru_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -949,7 +2283,36 @@ queries:
   - name: "extract-everest-MKPF"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, MBLNR, MJAHR), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mkpf_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -968,7 +2331,36 @@ queries:
   - name: "extract-everest-MSEG"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, MBLNR, MJAHR, ZEILE), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_mseg_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -987,7 +2379,36 @@ queries:
   - name: "extract-everest-RESB"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, RSNUM, RSPOS, RSART), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_resb_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
@@ -1009,7 +2430,36 @@ queries:
   - name: "extract-everest-COEP"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, KOKRS, BELNR, BUZEI), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_coep_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC

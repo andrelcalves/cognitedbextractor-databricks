@@ -206,8 +206,8 @@ TC25, TC25T, KAKT, TC37A, IFLOS, IMPTT, IMRG, AFRC, EAPL, TAPL, T430, T430T, LAG
 
 - Database: `db_databricks_glb_raw`
 - Tabela: `tb_{Pascal}Everest` (ex. `tb_AffwEverest`)
-- `primary-key: "{key}"` — GUID opaco (SHA-256 hex) gerado no SQL: `sha2(concat_ws('_', <colunas de negócio>), 256) AS key`
-- Não usar `primary-key: "{MANDT}_..."` nem `uuid()` aleatório
+- `primary-key: "{key}"` — SHA-256 of the full row as canonical sorted JSON (`struct(*)`, nulls kept, `&<>` / line-separator escapes)
+- Any column change produces a new RAW key (append semantics)
 - Detalhes: [`PRD.md`](PRD.md) R1–R6
 
 ---

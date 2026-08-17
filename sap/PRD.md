@@ -4,7 +4,7 @@
 Databricks → Cognite SAP Everest DB Extractor (3 continuous instances)
 
 ## Purpose
-Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_everest`) into Cognite RAW (`db_databricks_glb_raw.tb_*Everest`) with stable SHA-256 GUID row keys (`primary-key: "{key}"`), incremental load from **2026-08-01**, and a **15-minute** continuous schedule across three balanced extractors.
+Extract SAP Everest views from Databricks (`hub_dev.g_external.v_cognite_*_everest`) into Cognite RAW (`db_databricks_glb_raw.tb_*Everest`) with full-row SHA-256 keys (`primary-key: "{key}"`), incremental load from **2026-08-01**, and a **15-minute** continuous schedule across three balanced extractors.
 
 **Prerequisite:** data through July is already in Cognite. These configs do **not** re-extract pre-August history.
 
@@ -37,27 +37,47 @@ Legacy `db_databricks_everest_raw.tb_*` is out of scope (no migration in this ch
 
 ## Rules
 
-### R1 — Cognite `primary-key` = stable GUID (`key`)
+### R1 — Cognite `primary-key` = full-row hash (`key`)
 - Every query with RAW destination MUST set `primary-key: "{key}"` ([Cognite DB Extractor docs](https://docs.cognite.com/cdf/integration/guides/extraction/configuration/db)).
-- The extractor does **not** mint GUIDs by itself. Each query MUST compute a stable opaque key in SQL and expose it as column `key`.
-- Use SHA-256 over the SAP business-key columns (same fields formerly used in `CONCAT`), joined with `'_'`:
+- The extractor does **not** mint keys by itself. Each query MUST compute `key` in SQL as SHA-256 of a **canonical JSON encoding of the full row** (`struct(*)`):
+  - null fields kept (`ignoreNullFields=false`)
+  - map entries sorted by key
+  - `& < >` and Unicode line separators escaped to `\\u0026`, `\\u003c`, `\\u003e`, `\\u2028`, `\\u2029`
+- Do **not** use `uuid()` / random ids, business-key `concat_ws`, or `primary-key: "{MANDT}_..."`.
+- Because the hash covers the full row, any column change yields a **new** RAW key (append), not an upsert on a stable business key.
 
 ```sql
-SELECT sha2(concat_ws('_', MANDT, WEBLNR, WEBLPOS), 256) AS key, *
+SELECT
+  sha2(
+    replace(replace(replace(replace(replace(
+      to_json(
+        map_from_entries(
+          array_sort(
+            map_entries(
+              from_json(
+                to_json(struct(*), map('ignoreNullFields', 'false')),
+                'MAP<STRING, VARIANT>'
+              )
+            ),
+            (l, r) -> CASE
+              WHEN l.key < r.key THEN -1
+              WHEN l.key > r.key THEN 1
+              ELSE 0
+            END
+          )
+        ),
+        map('ignoreNullFields', 'false')
+      ),
+      '&', '\\u0026'),
+      '<', '\\u003c'),
+      '>', '\\u003e'),
+      chr(8232), '\\u2028'),
+      chr(8233), '\\u2029'
+    ),
+    256
+  ) AS key,
+  *
 ```
-
-- Resulting RAW keys are 64-char hex digests (GUID-style opaque ids), e.g. `b8333adbe03f960bbf9a350a58c84c3002008712e78698bf33d3696a0425596c`.
-- Do **not** use `uuid()` / random ids — they change every run and break RAW upserts.
-- Do **not** set `primary-key` to raw SAP columns (`"{MANDT}_{MATNR}_..."`).
-- Business-key column lists still follow the SAP table reference (including client as first component: `MANDT`, or `CLIENT` / `MANDANT` where the view uses those names). They appear only inside `sha2(concat_ws(...))`, not in the Cognite `primary-key` template.
-- Known view column exceptions (inputs to the hash only):
-  - Client `MANDANT` instead of `MANDT`: `QALS`, `QAMR`, `QAVE`, `QPGT`
-  - `MHIO`: use `WPPOS` (not `WAPOS`); do not include `LFDAT`
-  - `QAMR`: do not include `DETAILERG`
-  - `PMCO`: use `PERBL` (not `PERIO`); full SAP key without `F_OBJNR`
-  - Prefer keys that exist in both ECC and S/4 where they diverge (e.g. `VBFA` without S/4-only `RUUID`)
-  - Tables whose client field is `CLIENT` (e.g. `T003P`) use `CLIENT` as the first component
-
 ### R2 — Incremental watermark on DATETIMESTAMP (all tiers)
 - All 149 queries (Tiers 1–5 and `?`) MUST use incremental load:
   - `incremental-field: DATETIMESTAMP`
@@ -107,7 +127,36 @@ Null / unparseable values fail `>=` and are excluded.
   - name: "extract-everest-AFFW"
     database: "db-databricks-raw"
     query: >
-      SELECT sha2(concat_ws('_', MANDT, WEBLNR, WEBLPOS), 256) AS key, *
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
       FROM hub_dev.g_external.v_cognite_affw_everest
       WHERE {incremental_field} >= '{start_at}'
       ORDER BY {incremental_field} ASC
