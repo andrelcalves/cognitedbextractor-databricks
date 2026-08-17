@@ -1,0 +1,2306 @@
+version: 1
+type: local
+
+logger:
+  console:
+    level: DEBUG
+
+  file:
+    level: DEBUG
+    path: "./dbextractor.log"
+    retention: 7
+
+cognite:
+  host: "https://az-phx-001.cognitedata.com"
+  project: "bdx-dev"
+  timeout: 3000
+
+  idp-authentication:
+    authority: "https://login.microsoftonline.com/"
+    tenant: ""
+    client-id: ""
+    secret: ""
+    scopes:
+      - "https://az-phx-001.cognitedata.com/.default"
+
+  connection:
+    disable-ssl: true
+  
+  data-set:
+    external-id: 'ds_databricks_everest_dat'
+
+  extraction-pipeline:
+    external-id: 'ep_databricks_everest_dbExtractor'
+
+databases:
+  - type: "odbc"
+    name: "db-databricks-raw"
+    connection-string: 
+      Driver={Databricks ODBC Driver};
+      Host=;
+      Port=443;
+      HTTPPath=;
+      SSL=1;
+      ThriftTransport=2;
+      AuthMech=3;
+      UID=token;
+      PWD= 
+
+queries:
+# WORKCENTER TABLES
+
+# TC25 - Work Center Formulas [TIER ? | sem contagem]
+  - name: "extract-everest-TC25"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', IDENT) AS TC25_PK, *
+      FROM hub_dev.g_external.v_cognite_tc25_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TC25"
+
+    primary-key: "{TC25_PK}"
+
+# TC25T - Short Text for the Work Center Formula [TIER ? | sem contagem]
+  - name: "extract-everest-TC25T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', IDENT) AS TC25T_PK, *
+      FROM hub_dev.g_external.v_cognite_tc25t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TC25T"
+    primary-key: "{TC25T_PK}"
+
+# CRHD - Work Center Header [TIER 1 | 6.264 linhas]
+  - name: "extract-everest-CRHD"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', BEGDA, '_', ENDDA) AS CRHD_PK, *
+      FROM hub_dev.g_external.v_cognite_crhd_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRHD"
+
+    primary-key: "{CRHD_PK}"
+
+# CRTX - Text for the Work Center or Production Resource/Tool [TIER 1 | 8.096 linhas]
+  - name: "extract-everest-CRTX"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', SPRAS) AS CRTX_PK, *
+      FROM hub_dev.g_external.v_cognite_crtx_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRTX"
+
+    primary-key: "{CRTX_PK}"
+
+# CRCO - Assignment of Work Center to Cost Center [TIER 1 | 28.134 linhas]
+  - name: "extract-everest-CRCO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', LASET, '_', ENDDA, '_', LANUM) AS CRCO_PK, *
+      FROM hub_dev.g_external.v_cognite_crco_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRCO"
+
+    primary-key: "{CRCO_PK}"
+
+# CRCA - Work Center Capacity Allocation [TIER 1 | 5.638 linhas]
+  - name: "extract-everest-CRCA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJTY, '_', OBJID, '_', CANUM) AS CRCA_PK, *
+      FROM hub_dev.g_external.v_cognite_crca_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CRCA"
+
+    primary-key: "{CRCA_PK}"
+
+# WORKCENTER END
+
+# CAPACITY PLANNING TABLES
+
+# KAKO - Capacity Header Segment [TIER 1 | 5.642 linhas]
+  - name: "extract-everest-KAKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KAPID) AS KAKO_PK, *
+      FROM hub_dev.g_external.v_cognite_kako_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAKO"
+    primary-key: "{KAKO_PK}"
+
+# KAKT - Capacity Description [TIER ? | sem contagem]
+  - name: "extract-everest-KAKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KAPID, '_', SPRAS) AS KAKT_PK, *
+      FROM hub_dev.g_external.v_cognite_kakt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAKT"
+    primary-key: "{KAKT_PK}"
+
+# KAPA - Shift Parameters for Available Capacity [TIER 1 | 82.672 linhas]
+  - name: "extract-everest-KAPA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KAPID, '_', VERSN, '_', DATUB, '_', TAGNR, '_', SCHNR) AS KAPA_PK, *
+      FROM hub_dev.g_external.v_cognite_kapa_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAPA"
+    primary-key: "{KAPA_PK}"
+
+# KAZY - Interval of Available Capacity [TIER 1 | 10.685 linhas]
+  - name: "extract-everest-KAZY"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KAPID, '_', VERSN, '_', DATUB) AS KAZY_PK, *
+      FROM hub_dev.g_external.v_cognite_kazy_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KAZY"
+    primary-key: "{KAZY_PK}"
+
+# TC37A - Shift Definition [TIER ? | sem contagem]
+  - name: "extract-everest-TC37A"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SCHGRUP, '_', KAPTPROG, '_', ENDDA) AS TC37A_PK, *
+      FROM hub_dev.g_external.v_cognite_tc37a_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TC37A"
+    primary-key: "{TC37A_PK}"
+
+# END CAPACITY PLANNING
+
+# COSTCENTER TABLES
+
+# CSKS - Cost Center Master Data [TIER 1 | 57.411 linhas]
+  - name: "extract-everest-CSKS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KOKRS, '_', KOSTL, '_', DATBI) AS CSKS_PK, *
+      FROM hub_dev.g_external.v_cognite_csks_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CSKS"
+
+    primary-key: "{CSKS_PK}"
+
+# CSKT - Cost Center Texts [TIER 1 | 82.026 linhas]
+  - name: "extract-everest-CSKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', KOKRS, '_', KOSTL, '_', DATBI) AS CSKT_PK, *
+      FROM hub_dev.g_external.v_cognite_cskt_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CSKT"
+
+    primary-key: "{CSKT_PK}"
+
+# END COSTCENTER
+
+# FUNCTIONAL LOCATION TABLES
+
+# IFLOT - Functional Location Master Data [TIER 1 | 20.068 linhas]
+  - name: "extract-everest-IFLOT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_' , TPLNR) AS IFLOT_PK, *
+      FROM hub_dev.g_external.v_cognite_iflot_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOT"
+
+    primary-key: "{IFLOT_PK}"
+
+# IFLOTX - Functional Location Short Texts [TIER 1 | 21.893 linhas]
+  - name: "extract-everest-IFLOTX"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLNR, '_', SPRAS) AS IFLOTX_PK, *
+      FROM hub_dev.g_external.v_cognite_iflotx_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOTX"
+
+    primary-key: "{IFLOTX_PK}"
+
+# IFLOS - Functional Location Alternative Labels [TIER ? | sem contagem]
+  - name: "extract-everest-IFLOS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_' , TPLNR, '_', ALKEY , '_', VERSN) AS IFLOS_PK, *
+      FROM hub_dev.g_external.v_cognite_iflos_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IFLOS"
+
+    primary-key: "{IFLOS_PK}"
+
+# ILOA - PM Object Location and Account Assignment [TIER 3 | 11.207.563 linhas]
+  - name: "extract-everest-ILOA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', ILOAN) AS ILOA_PK, *
+      FROM hub_dev.g_external.v_cognite_iloa_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_ILOA"
+    primary-key: "{ILOA_PK}"
+
+# TPST - Link Between Functional Location and BOM [TIER 1 | 39 linhas]
+  - name: "extract-everest-TPST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLNR, '_', WERKS, '_', STLAN, '_', STLNR, '_', STLAL) AS TPST_PK, *
+      FROM hub_dev.g_external.v_cognite_tpst_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TPST"
+    primary-key: "{TPST_PK}"
+
+# END FUNCTIONAL LOCATION
+
+# EQUIPMENT TABLES
+
+# EQUI - Equipment Master Data [TIER 2 | 1.434.080 linhas]
+  - name: "extract-everest-EQUI"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EQUNR) AS EQUI_PK, *
+      FROM hub_dev.g_external.v_cognite_equi_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQUI"
+    primary-key: "{EQUI_PK}"
+
+# EQUZ - Equipment Time Segment [TIER 2 | 2.766.450 linhas]
+  - name: "extract-everest-EQUZ"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EQUNR, '_', DATBI, '_', EQLFN) AS EQUZ_PK, *
+      FROM hub_dev.g_external.v_cognite_equz_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQUZ"
+    primary-key: "{EQUZ_PK}"
+
+# EQKT - Equipment Short Texts [TIER 2 | 1.397.294 linhas]
+  - name: "extract-everest-EQKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EQUNR, '_', SPRAS) AS EQKT_PK, *
+      FROM hub_dev.g_external.v_cognite_eqkt_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQKT"
+    primary-key: "{EQKT_PK}"
+
+# EQST - Equipment to BOM Link [TIER 1 | 28.027 linhas]
+  - name: "extract-everest-EQST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EQUNR, '_', WERKS, '_', STLAN, '_', STLNR, '_', STLAL) AS EQST_PK, *
+      FROM hub_dev.g_external.v_cognite_eqst_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EQST"
+    primary-key: "{EQST_PK}"
+
+# END EQUIPMENT
+
+# MEASURING POINT & COUNTER TABLES
+
+# IMPTT - Measuring Point [TIER ? | sem contagem]
+  - name: "extract-everest-IMPTT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', POINT) AS IMPTT_PK, *
+      FROM hub_dev.g_external.v_cognite_imptt_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IMPTT"
+    primary-key: "{IMPTT_PK}"
+
+# IMRG - Measurement Document [TIER ? | sem contagem]
+  - name: "extract-everest-IMRG"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MDOCM) AS IMRG_PK, *
+      FROM hub_dev.g_external.v_cognite_imrg_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_IMRG"
+    primary-key: "{IMRG_PK}"
+
+# END MEASURING POINT
+
+# MAINTENANCE PLANNING TABLES
+
+# MPLA - Maintenance Plan [TIER 1 | 29.496 linhas]
+  - name: "extract-everest-MPLA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WARPL) AS MPLA_PK, *
+      FROM hub_dev.g_external.v_cognite_mpla_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MPLA"
+    primary-key: "{MPLA_PK}"
+
+# MPOS - Maintenance Item [TIER 1 | 115.255 linhas]
+  - name: "extract-everest-MPOS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WARPL, '_', WAPOS) AS MPOS_PK, *
+      FROM hub_dev.g_external.v_cognite_mpos_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MPOS"
+    primary-key: "{MPOS_PK}"
+
+# MHIO - Maintenance Order Call Object [TIER 2 | 5.186.856 linhas]
+# View column WPPOS (SAP dictionary name is WAPOS); LFDAT is not a key and not in the view
+  - name: "extract-everest-MHIO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WARPL, '_', ABNUM, '_', WPPOS) AS MHIO_PK, *
+      FROM hub_dev.g_external.v_cognite_mhio_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MHIO"
+    primary-key: "{MHIO_PK}"
+
+# MHIS - Maintenance Plan History [TIER 2 | 1.622.661 linhas]
+  - name: "extract-everest-MHIS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WARPL, '_', ABNUM, '_', ZAEHL) AS MHIS_PK, *
+      FROM hub_dev.g_external.v_cognite_mhis_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MHIS"
+    primary-key: "{MHIS_PK}"
+
+# END MAINTENANCE PLANNING
+
+# ORDER TABLES (PM/PP)
+
+# AUFK - Order Master Data [TIER 3 | 14.446.636 linhas]
+  - name: "extract-everest-AUFK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', AUFNR) AS AUFK_PK, *
+      FROM hub_dev.g_external.v_cognite_aufk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AUFK"
+    primary-key: "{AUFK_PK}"
+
+# AFIH - Maintenance Order Header [TIER 2 | 6.415.666 linhas]
+  - name: "extract-everest-AFIH"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', AUFNR) AS AFIH_PK, *
+      FROM hub_dev.g_external.v_cognite_afih_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFIH"
+    primary-key: "{AFIH_PK}"
+
+# AFKO - Order Header Data PP Orders [TIER 3 | 12.749.465 linhas]
+  - name: "extract-everest-AFKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', AUFNR) AS AFKO_PK, *
+      FROM hub_dev.g_external.v_cognite_afko_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFKO"
+    primary-key: "{AFKO_PK}"
+
+# AFPO - Order Item [TIER 2 | 6.335.594 linhas]
+  - name: "extract-everest-AFPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', AUFNR, '_', POSNR) AS AFPO_PK, *
+      FROM hub_dev.g_external.v_cognite_afpo_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFPO"
+    primary-key: "{AFPO_PK}"
+
+# AFVC - Order Operations [TIER 3 | 72.700.785 linhas]
+  - name: "extract-everest-AFVC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', AUFPL, '_', APLZL) AS AFVC_PK, *
+      FROM hub_dev.g_external.v_cognite_afvc_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFVC"
+    primary-key: "{AFVC_PK}"
+
+# AFVV - Order Operation Quantities, Dates and Values [TIER 3 | 72.707.752 linhas]
+  - name: "extract-everest-AFVV"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', AUFPL, '_', APLZL) AS AFVV_PK, *
+      FROM hub_dev.g_external.v_cognite_afvv_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFVV"
+    primary-key: "{AFVV_PK}"
+
+# AFRU - Order Confirmations [TIER 4 | 144.430.339 linhas]
+  - name: "extract-everest-AFRU"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', RUECK, '_', RMZHL) AS AFRU_PK, *
+      FROM hub_dev.g_external.v_cognite_afru_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFRU"
+    primary-key: "{AFRU_PK}"
+
+# AFRC - Incorrect Confirmations [TIER ? | sem contagem]
+  - name: "extract-everest-AFRC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', AUFNR, '_', RUECK, '_', RMZHL) AS AFRC_PK, *
+      FROM hub_dev.g_external.v_cognite_afrc_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFRC"
+    primary-key: "{AFRC_PK}"
+
+# AFFW - Goods Movements with Errors from Confirmations [TIER 2 | 1.125.556 linhas]
+  - name: "extract-everest-AFFW"
+    database: "db-databricks-raw"
+    query: >          
+      SELECT CONCAT(MANDT, '_', WEBLNR, '_', WEBLPOS) AS AFFW_PK, *
+      FROM hub_dev.g_external.v_cognite_affw_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFFW"
+    primary-key: "{AFFW_PK}"
+
+# AFWI - Subsequently Posted Goods Movements for Confirmations [TIER 3 | 31.390.016 linhas]
+  - name: "extract-everest-AFWI"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', RUECK, '_', RMZHL, '_', MBLNR, '_', MJAHR, '_', MBLPO) AS AFWI_PK, *
+      FROM hub_dev.g_external.v_cognite_afwi_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AFWI"
+    primary-key: "{AFWI_PK}"
+
+# AUFM - Goods Movements for Order [TIER 4 | 350.809.194 linhas]
+  - name: "extract-everest-AUFM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MBLNR, '_', MJAHR, '_', ZEILE) AS AUFM_PK, *
+      FROM hub_dev.g_external.v_cognite_aufm_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AUFM"
+    primary-key: "{AUFM_PK}"
+
+# END ORDER
+
+# CLASSIFICATION & STATUS TABLES
+
+# AUSP - Characteristic Values [TIER 4 | 327.379.157 linhas]
+  - name: "extract-everest-AUSP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJEK, '_', ATINN, '_', ATZHL, '_', MAFID, '_', KLART, '_', ADZHL) AS AUSP_PK, *
+      FROM hub_dev.g_external.v_cognite_ausp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_AUSP"
+    primary-key: "{AUSP_PK}"
+
+# KSSK - Allocation Table: Object to Class [TIER 3 | 46.527.246 linhas]
+  - name: "extract-everest-KSSK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJEK, '_', MAFID, '_', KLART, '_', ADZHL) AS KSSK_PK, *
+      FROM hub_dev.g_external.v_cognite_kssk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KSSK"
+    primary-key: "{KSSK_PK}"
+
+# JEST - Individual Object Status [TIER 4 | 848.522.773 linhas]
+  - name: "extract-everest-JEST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJNR, '_', STAT) AS JEST_PK, *
+      FROM hub_dev.g_external.v_cognite_jest_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_JEST"
+    primary-key: "{JEST_PK}"
+
+# TJ30T - Texts for User Status [TIER 1 | 7.213 linhas]
+  - name: "extract-everest-TJ30T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', STSMA, '_', ESTAT, '_', SPRAS) AS TJ30T_PK, *
+      FROM hub_dev.g_external.v_cognite_tj30t_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TJ30T"
+    primary-key: "{TJ30T_PK}"
+
+# END CLASSIFICATION & STATUS
+
+# COSTING & CONTROLLING TABLES
+
+# CKIS - Items Unit Costing and Itemization [TIER 4 | 200.518.975 linhas]
+  - name: "extract-everest-CKIS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LEDNR, '_', BZOBJ, '_', KALNR, '_', KALKA, '_', KADKY, '_', TVERS, '_', BWVAR, '_', KKZMA, '_', POSNR) AS CKIS_PK, *
+      FROM hub_dev.g_external.v_cognite_ckis_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_CKIS"
+    primary-key: "{CKIS_PK}"
+
+# COEP - CO Object: Line Items by Period [TIER 5 | 2.949.490.993 linhas]
+  - name: "extract-everest-COEP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KOKRS, '_', BELNR, '_', BUZEI) AS COEP_PK, *
+      FROM hub_dev.g_external.v_cognite_coep_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_COEP"
+    primary-key: "{COEP_PK}"
+
+# COSP - CO Object: Cost Totals for External Postings [TIER 4 | 706.716.382 linhas]
+  - name: "extract-everest-COSP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LEDNR, '_', OBJNR, '_', GJAHR, '_', WRTTP, '_', VERSN, '_', KSTAR, '_', HRKFT, '_', VRGNG, '_', VBUND, '_', PARGB, '_', BEKNZ, '_', TWAER, '_', PERBL) AS COSP_PK, *
+      FROM hub_dev.g_external.v_cognite_cosp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_COSP"
+    primary-key: "{COSP_PK}"
+
+# KEKO - Product Costing Header Data [TIER 3 | 58.881.095 linhas]
+  - name: "extract-everest-KEKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', BZOBJ, '_', KALNR, '_', KALKA, '_', KADKY, '_', TVERS, '_', BWVAR, '_', KKZMA) AS KEKO_PK, *
+      FROM hub_dev.g_external.v_cognite_keko_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KEKO"
+    primary-key: "{KEKO_PK}"
+
+# PMCO - Cost Structure of Maintenance Order [TIER 3 | 12.346.036 linhas]
+# Full SAP key; PERBL (not PERIO); F_OBJNR is not in the view
+  - name: "extract-everest-PMCO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBJNR, '_', COCUR, '_', BELTP, '_', WRTTP, '_', GJAHR, '_', ACPOS, '_', VERSN, '_', PERBL, '_', VORGA, '_', BEMOT, '_', ABKAT) AS PMCO_PK, *
+      FROM hub_dev.g_external.v_cognite_pmco_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PMCO"
+    primary-key: "{PMCO_PK}"
+
+# END COSTING & CONTROLLING
+
+# TASK LIST & ROUTING TABLES
+
+# PLKO - Task List Header [TIER 1 | 304.392 linhas]
+  - name: "extract-everest-PLKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', PLNAL) AS PLKO_PK, *
+      FROM hub_dev.g_external.v_cognite_plko_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLKO"
+    primary-key: "{PLKO_PK}"
+
+# PLAS - Task List Selection of Operations [TIER 2 | 2.767.802 linhas]
+  - name: "extract-everest-PLAS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', PLNKN, '_', ZAEHL) AS PLAS_PK, *
+      FROM hub_dev.g_external.v_cognite_plas_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLAS"
+    primary-key: "{PLAS_PK}"
+
+# PLPO - Task List Operation or Activity [TIER 2 | 2.552.329 linhas]
+  - name: "extract-everest-PLPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', PLNKN) AS PLPO_PK, *
+      FROM hub_dev.g_external.v_cognite_plpo_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLPO"
+    primary-key: "{PLPO_PK}"
+
+# PLFL - Task List Sequences [TIER 1 | 261.515 linhas]
+  - name: "extract-everest-PLFL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', PLNFL, '_', ZAEHL) AS PLFL_PK, *
+      FROM hub_dev.g_external.v_cognite_plfl_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLFL"
+    primary-key: "{PLFL_PK}"
+
+# PLMZ - Allocation of BOM Items to Operations [TIER 2 | 1.106.480 linhas]
+  - name: "extract-everest-PLMZ"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', ZUONR, '_', ZAEHL) AS PLMZ_PK, *
+      FROM hub_dev.g_external.v_cognite_plmz_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLMZ"
+    primary-key: "{PLMZ_PK}"
+
+# PLWP - Allocation of Maintenance Packages to Task List Operations [TIER 1 | 117.194 linhas]
+  - name: "extract-everest-PLWP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', PLNFL, '_', PLNKN, '_', PAKET, '_', ZAEHL) AS PLWP_PK, *
+      FROM hub_dev.g_external.v_cognite_plwp_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_PLWP"
+    primary-key: "{PLWP_PK}"
+
+# MAPL - Assignment of Task Lists to Materials [TIER 2 | 3.396.230 linhas]
+  - name: "extract-everest-MAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', ZAEHL) AS MAPL_PK, *
+      FROM hub_dev.g_external.v_cognite_mapl_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MAPL"
+    primary-key: "{MAPL_PK}"
+
+# EAPL - Allocation of Task Lists to Equipment [TIER ? | sem contagem]
+  - name: "extract-everest-EAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EQUNR, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', ZKRIZ, '_', ZAEHL) AS EAPL_PK, *
+      FROM hub_dev.g_external.v_cognite_eapl_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EAPL"
+    primary-key: "{EAPL_PK}"
+
+# TAPL - Allocation of Task Lists to Functional Locations [TIER ? | sem contagem]
+  - name: "extract-everest-TAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLNR, '_', PLNTY, '_', PLNNR, '_', PLNAL, '_', ZKRIZ, '_', ZAEHL) AS TAPL_PK, *
+      FROM hub_dev.g_external.v_cognite_tapl_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TAPL"
+    primary-key: "{TAPL_PK}"
+
+# T430 - Operation/Activity Control Key [TIER ? | sem contagem]
+  - name: "extract-everest-T430"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PLNAW, '_', STEUS) AS T430_PK, *
+      FROM hub_dev.g_external.v_cognite_t430_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T430"
+    primary-key: "{T430_PK}"
+
+# T430T - Control Key Texts [TIER ? | sem contagem]
+  - name: "extract-everest-T430T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', PLNAW, '_', STEUS) AS T430T_PK, *
+      FROM hub_dev.g_external.v_cognite_t430t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T430T"
+    primary-key: "{T430T_PK}"
+
+# END TASK LIST & ROUTING
+
+# BILL OF MATERIAL TABLES
+
+# MAST - Material to BOM Link [TIER 1 | 781.214 linhas]
+  - name: "extract-everest-MAST"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', STLAN, '_', STLNR, '_', STLAL) AS MAST_PK, *
+      FROM hub_dev.g_external.v_cognite_mast_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MAST"
+    primary-key: "{MAST_PK}"
+
+# STKO - BOM Header [TIER 2 | 1.359.773 linhas]
+  - name: "extract-everest-STKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', STLTY, '_', STLNR, '_', STLAL, '_', STKOZ) AS STKO_PK, *
+      FROM hub_dev.g_external.v_cognite_stko_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_STKO"
+    primary-key: "{STKO_PK}"
+
+# STPO - BOM Item [TIER 3 | 15.348.670 linhas]
+  - name: "extract-everest-STPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', STLTY, '_', STLNR, '_', STLKN, '_', STPOZ) AS STPO_PK, *
+      FROM hub_dev.g_external.v_cognite_stpo_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_STPO"
+    primary-key: "{STPO_PK}"
+
+# STAS - BOMs Item Selection [TIER 3 | 27.362.006 linhas]
+  - name: "extract-everest-STAS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', STLTY, '_', STLNR, '_', STLAL, '_', STLKN, '_', STASZ) AS STAS_PK, *
+      FROM hub_dev.g_external.v_cognite_stas_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_STAS"
+    primary-key: "{STAS_PK}"
+
+# END BILL OF MATERIAL
+
+# MATERIAL MASTER TABLES
+
+# MARA - General Material Data [TIER 2 | 1.254.124 linhas]
+  - name: "extract-everest-MARA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR) AS MARA_PK, *
+      FROM hub_dev.g_external.v_cognite_mara_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARA"
+    primary-key: "{MARA_PK}"
+
+# MAKT - Material Descriptions [TIER 2 | 1.707.991 linhas]
+  - name: "extract-everest-MAKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', SPRAS) AS MAKT_PK, *
+      FROM hub_dev.g_external.v_cognite_makt_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MAKT"
+    primary-key: "{MAKT_PK}"
+
+# MARC - Plant Data for Material [TIER 2 | 2.331.034 linhas]
+  - name: "extract-everest-MARC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS) AS MARC_PK, *
+      FROM hub_dev.g_external.v_cognite_marc_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARC"
+    primary-key: "{MARC_PK}"
+
+# MARD - Storage Location Data for Material [TIER 3 | 17.166.926 linhas]
+  - name: "extract-everest-MARD"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', LGORT) AS MARD_PK, *
+      FROM hub_dev.g_external.v_cognite_mard_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARD"
+    primary-key: "{MARD_PK}"
+
+# MARM - Units of Measure for Material [TIER 2 | 1.399.952 linhas]
+  - name: "extract-everest-MARM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', MEINH) AS MARM_PK, *
+      FROM hub_dev.g_external.v_cognite_marm_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MARM"
+    primary-key: "{MARM_PK}"
+
+# MBEW - Material Valuation [TIER 2 | 2.282.427 linhas]
+  - name: "extract-everest-MBEW"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', BWKEY, '_', BWTAR) AS MBEW_PK, *
+      FROM hub_dev.g_external.v_cognite_mbew_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MBEW"
+    primary-key: "{MBEW_PK}"
+
+# MKAL - Production Versions of Material [TIER 1 | 281.885 linhas]
+  - name: "extract-everest-MKAL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', VERID) AS MKAL_PK, *
+      FROM hub_dev.g_external.v_cognite_mkal_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MKAL"
+    primary-key: "{MKAL_PK}"
+
+# END MATERIAL MASTER
+
+# BATCH MANAGEMENT TABLES
+
+# MCH1 - Batches Cross-Plant [TIER 2 | 9.263.775 linhas]
+  - name: "extract-everest-MCH1"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', CHARG) AS MCH1_PK, *
+      FROM hub_dev.g_external.v_cognite_mch1_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MCH1"
+    primary-key: "{MCH1_PK}"
+
+# MCHA - Batches [TIER 3 | 13.083.956 linhas]
+  - name: "extract-everest-MCHA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', CHARG) AS MCHA_PK, *
+      FROM hub_dev.g_external.v_cognite_mcha_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MCHA"
+    primary-key: "{MCHA_PK}"
+
+# MCHB - Batch Stocks [TIER 3 | 13.975.831 linhas]
+  - name: "extract-everest-MCHB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', LGORT, '_', CHARG) AS MCHB_PK, *
+      FROM hub_dev.g_external.v_cognite_mchb_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MCHB"
+    primary-key: "{MCHB_PK}"
+
+# END BATCH MANAGEMENT
+
+# INVENTORY & WAREHOUSE TABLES
+
+# LAGP - Storage Bins [TIER ? | sem contagem]
+  - name: "extract-everest-LAGP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LGNUM, '_', LGTYP, '_', LGPLA) AS LAGP_PK, *
+      FROM hub_dev.g_external.v_cognite_lagp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LAGP"
+    primary-key: "{LAGP_PK}"
+
+# LQUA - Quants [TIER 2 | 9.567.436 linhas]
+  - name: "extract-everest-LQUA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LQNUM) AS LQUA_PK, *
+      FROM hub_dev.g_external.v_cognite_lqua_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LQUA"
+    primary-key: "{LQUA_PK}"
+
+# MSKU - Special Stocks with Customer [TIER 1 | 49.694 linhas]
+  - name: "extract-everest-MSKU"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', WERKS, '_', CHARG, '_', SOBKZ, '_', KUNNR) AS MSKU_PK, *
+      FROM hub_dev.g_external.v_cognite_msku_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MSKU"
+    primary-key: "{MSKU_PK}"
+
+# T301 - WM Storage Types [TIER ? | sem contagem]
+  - name: "extract-everest-T301"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LGNUM, '_', LGTYP) AS T301_PK, *
+      FROM hub_dev.g_external.v_cognite_t301_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T301"
+    primary-key: "{T301_PK}"
+
+# END INVENTORY & WAREHOUSE
+
+# MATERIAL DOCUMENT TABLES
+
+# MKPF - Material Document Header [TIER 4 | 292.610.764 linhas]
+  - name: "extract-everest-MKPF"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MBLNR, '_', MJAHR) AS MKPF_PK, *
+      FROM hub_dev.g_external.v_cognite_mkpf_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MKPF"
+    primary-key: "{MKPF_PK}"
+
+# MSEG - Material Document Segment [TIER 4 | 490.375.041 linhas]
+  - name: "extract-everest-MSEG"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MBLNR, '_', MJAHR, '_', ZEILE) AS MSEG_PK, *
+      FROM hub_dev.g_external.v_cognite_mseg_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MSEG"
+    primary-key: "{MSEG_PK}"
+
+# END MATERIAL DOCUMENT
+
+# MRP TABLES
+
+# MDKP - Header Data for MRP Document [TIER 2 | 2.502.142 linhas]
+  - name: "extract-everest-MDKP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', DTNUM) AS MDKP_PK, *
+      FROM hub_dev.g_external.v_cognite_mdkp_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MDKP"
+    primary-key: "{MDKP_PK}"
+
+# MDTB - MRP Table [TIER 5 | 5.379.495.282 linhas]
+  - name: "extract-everest-MDTB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', DTNUM, '_', DTPOS) AS MDTB_PK, *
+      FROM hub_dev.g_external.v_cognite_mdtb_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MDTB"
+    primary-key: "{MDTB_PK}"
+
+# MDMA - MRP Area for Material [TIER 1 | 0 linhas]
+  - name: "extract-everest-MDMA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATNR, '_', BERID) AS MDMA_PK, *
+      FROM hub_dev.g_external.v_cognite_mdma_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_MDMA"
+    primary-key: "{MDMA_PK}"
+
+# END MRP
+
+# RESERVATION TABLES
+
+# RKPF - Reservation Document Header [TIER ? | sem contagem]
+  - name: "extract-everest-RKPF"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', RSNUM) AS RKPF_PK, *
+      FROM hub_dev.g_external.v_cognite_rkpf_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_RKPF"
+    primary-key: "{RKPF_PK}"
+
+# RESB - Reservation and Dependent Requirements [TIER 4 | 843.543.737 linhas]
+  - name: "extract-everest-RESB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', RSNUM, '_', RSPOS, '_', RSART) AS RESB_PK, *
+      FROM hub_dev.g_external.v_cognite_resb_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_RESB"
+    primary-key: "{RESB_PK}"
+
+# END RESERVATION
+
+# PURCHASING TABLES
+
+# EBAN - Purchase Requisition [TIER 5 | 1.735.085.875 linhas]
+  - name: "extract-everest-EBAN"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', BANFN, '_', BNFPO) AS EBAN_PK, *
+      FROM hub_dev.g_external.v_cognite_eban_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EBAN"
+    primary-key: "{EBAN_PK}"
+
+# EKKO - Purchasing Document Header [TIER 2 | 5.377.290 linhas]
+  - name: "extract-everest-EKKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EBELN) AS EKKO_PK, *
+      FROM hub_dev.g_external.v_cognite_ekko_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKKO"
+    primary-key: "{EKKO_PK}"
+
+# EKPO - Purchasing Document Item [TIER 3 | 14.321.553 linhas]
+  - name: "extract-everest-EKPO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EBELN, '_', EBELP) AS EKPO_PK, *
+      FROM hub_dev.g_external.v_cognite_ekpo_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKPO"
+    primary-key: "{EKPO_PK}"
+
+# EKKN - Account Assignment in Purchasing Document [TIER 2 | 5.257.736 linhas]
+  - name: "extract-everest-EKKN"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EBELN, '_', EBELP, '_', ZEKKN) AS EKKN_PK, *
+      FROM hub_dev.g_external.v_cognite_ekkn_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKKN"
+    primary-key: "{EKKN_PK}"
+
+# EKET - Scheduling Agreement Schedule Lines [TIER 3 | 16.500.379 linhas]
+  - name: "extract-everest-EKET"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EBELN, '_', EBELP, '_', ETENR) AS EKET_PK, *
+      FROM hub_dev.g_external.v_cognite_eket_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKET"
+    primary-key: "{EKET_PK}"
+
+# EKBE - History per Purchasing Document [TIER 3 | 43.813.684 linhas]
+  - name: "extract-everest-EKBE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EBELN, '_', EBELP, '_', ZEKKN, '_', VGABE, '_', GJAHR, '_', BELNR, '_', BUZEI) AS EKBE_PK, *
+      FROM hub_dev.g_external.v_cognite_ekbe_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EKBE"
+    primary-key: "{EKBE_PK}"
+
+# EINA - Purchasing Info Record General Data [TIER 2 | 1.128.342 linhas]
+  - name: "extract-everest-EINA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', INFNR) AS EINA_PK, *
+      FROM hub_dev.g_external.v_cognite_eina_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EINA"
+    primary-key: "{EINA_PK}"
+
+# EINE - Purchasing Info Record Purchasing Organization Data [TIER 2 | 2.159.624 linhas]
+  - name: "extract-everest-EINE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', INFNR, '_', EKORG, '_', ESOKZ, '_', WERKS) AS EINE_PK, *
+      FROM hub_dev.g_external.v_cognite_eine_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_EINE"
+    primary-key: "{EINE_PK}"
+
+# LFA1 - Vendor Master General Section [TIER 1 | 129.916 linhas]
+  - name: "extract-everest-LFA1"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', LIFNR) AS LFA1_PK, *
+      FROM hub_dev.g_external.v_cognite_lfa1_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LFA1"
+    primary-key: "{LFA1_PK}"
+
+# END PURCHASING
+
+# SALES & DELIVERY TABLES
+
+# KNA1 - General Data in Customer Master [TIER 2 | 1.408.544 linhas]
+  - name: "extract-everest-KNA1"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KUNNR) AS KNA1_PK, *
+      FROM hub_dev.g_external.v_cognite_kna1_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KNA1"
+    primary-key: "{KNA1_PK}"
+
+# KNVV - Customer Master Sales Data [TIER 2 | 1.487.203 linhas]
+  - name: "extract-everest-KNVV"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KUNNR, '_', VKORG, '_', VTWEG, '_', SPART) AS KNVV_PK, *
+      FROM hub_dev.g_external.v_cognite_knvv_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KNVV"
+    primary-key: "{KNVV_PK}"
+
+# KNVK - Customer Master Contact Partner [TIER 1 | 312.248 linhas]
+  - name: "extract-everest-KNVK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PARNR) AS KNVK_PK, *
+      FROM hub_dev.g_external.v_cognite_knvk_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_KNVK"
+    primary-key: "{KNVK_PK}"
+
+# LIKP - Delivery Header Data [TIER 3 | 25.404.608 linhas]
+  - name: "extract-everest-LIKP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN) AS LIKP_PK, *
+      FROM hub_dev.g_external.v_cognite_likp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LIKP"
+    primary-key: "{LIKP_PK}"
+
+# LIPS - Delivery Item Data [TIER 3 | 85.426.484 linhas]
+  - name: "extract-everest-LIPS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR) AS LIPS_PK, *
+      FROM hub_dev.g_external.v_cognite_lips_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_LIPS"
+    primary-key: "{LIPS_PK}"
+
+# VBAK - Sales Document Header Data [TIER 3 | 14.299.699 linhas]
+  - name: "extract-everest-VBAK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN) AS VBAK_PK, *
+      FROM hub_dev.g_external.v_cognite_vbak_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBAK"
+    primary-key: "{VBAK_PK}"
+
+# VBAP - Sales Document Item Data [TIER 3 | 70.287.949 linhas]
+  - name: "extract-everest-VBAP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR) AS VBAP_PK, *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBAP"
+    primary-key: "{VBAP_PK}"
+
+# VBEP - Sales Document Schedule Line Data [TIER 4 | 112.112.436 linhas]
+  - name: "extract-everest-VBEP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR, '_', ETENR) AS VBEP_PK, *
+      FROM hub_dev.g_external.v_cognite_vbep_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBEP"
+    primary-key: "{VBEP_PK}"
+
+# VBBE - Sales Requirements Individual Records [TIER 3 | 33.057.061 linhas]
+  - name: "extract-everest-VBBE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR, '_', ETENR) AS VBBE_PK, *
+      FROM hub_dev.g_external.v_cognite_vbbe_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBBE"
+    primary-key: "{VBBE_PK}"
+
+# VBPA - Sales Document Partner [TIER 4 | 263.924.069 linhas]
+  - name: "extract-everest-VBPA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELN, '_', POSNR, '_', PARVW) AS VBPA_PK, *
+      FROM hub_dev.g_external.v_cognite_vbpa_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBPA"
+    primary-key: "{VBPA_PK}"
+
+# VBFA - Sales Document Flow [TIER 4 | 677.404.018 linhas]
+  - name: "extract-everest-VBFA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VBELV, '_', POSNV, '_', VBELN, '_', POSNN, '_', VBTYP_N) AS VBFA_PK, *
+      FROM hub_dev.g_external.v_cognite_vbfa_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VBFA"
+    primary-key: "{VBFA_PK}"
+
+# TVEPZ - Schedule Line Category Determination [TIER ? | sem contagem]
+  - name: "extract-everest-TVEPZ"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', PSTYV, '_', DISMM) AS TVEPZ_PK, *
+      FROM hub_dev.g_external.v_cognite_tvepz_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TVEPZ"
+    primary-key: "{TVEPZ_PK}"
+
+# TVSB - Shipping Conditions [TIER 1 | 18 linhas]
+  - name: "extract-everest-TVSB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', VSBED) AS TVSB_PK, *
+      FROM hub_dev.g_external.v_cognite_tvsb_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TVSB"
+    primary-key: "{TVSB_PK}"
+
+# END SALES & DELIVERY
+
+# SHIPMENT TABLES
+
+# VTTK - Shipment Header [TIER 3 | 17.116.336 linhas]
+  - name: "extract-everest-VTTK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TKNUM) AS VTTK_PK, *
+      FROM hub_dev.g_external.v_cognite_vttk_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VTTK"
+    primary-key: "{VTTK_PK}"
+
+# VTTP - Shipment Item [TIER 3 | 22.340.431 linhas]
+  - name: "extract-everest-VTTP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TKNUM, '_', TPNUM) AS VTTP_PK, *
+      FROM hub_dev.g_external.v_cognite_vttp_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_VTTP"
+    primary-key: "{VTTP_PK}"
+
+# END SHIPMENT
+
+# QUALITY MANAGEMENT TABLES
+
+# QMEL - Quality Notification [TIER 2 | 1.989.965 linhas]
+  - name: "extract-everest-QMEL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM) AS QMEL_PK, *
+      FROM hub_dev.g_external.v_cognite_qmel_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMEL"
+    primary-key: "{QMEL_PK}"
+
+# QMFE - Quality Notification Items [TIER 1 | 940.696 linhas]
+  - name: "extract-everest-QMFE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM, '_', FENUM) AS QMFE_PK, *
+      FROM hub_dev.g_external.v_cognite_qmfe_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMFE"
+    primary-key: "{QMFE_PK}"
+
+# QMIH - Quality Notification Maintenance Data [TIER 2 | 1.989.965 linhas]
+  - name: "extract-everest-QMIH"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM) AS QMIH_PK, *
+      FROM hub_dev.g_external.v_cognite_qmih_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMIH"
+    primary-key: "{QMIH_PK}"
+
+# QMSM - Quality Notification Tasks [TIER 2 | 3.158.949 linhas]
+  - name: "extract-everest-QMSM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM, '_', MANUM) AS QMSM_PK, *
+      FROM hub_dev.g_external.v_cognite_qmsm_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMSM"
+    primary-key: "{QMSM_PK}"
+
+# QMUR - Quality Notification Causes [TIER 1 | 707.389 linhas]
+  - name: "extract-everest-QMUR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMNUM, '_', FENUM, '_', URNUM) AS QMUR_PK, *
+      FROM hub_dev.g_external.v_cognite_qmur_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMUR"
+    primary-key: "{QMUR_PK}"
+
+# QALS - Inspection Lot Record [TIER 3 | 11.274.432 linhas]
+# View client column is MANDANT (not MANDT)
+  - name: "extract-everest-QALS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDANT, '_', PRUEFLOS) AS QALS_PK, *
+      FROM hub_dev.g_external.v_cognite_qals_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QALS"
+    primary-key: "{QALS_PK}"
+
+# QAMR - Characteristic Results During Inspection [TIER 3 | 46.452.589 linhas]
+# View client column is MANDANT (not MANDT); DETAILERG is not a key and not in the view
+  - name: "extract-everest-QAMR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDANT, '_', PRUEFLOS, '_', VORGLFNR, '_', MERKNR) AS QAMR_PK, *
+      FROM hub_dev.g_external.v_cognite_qamr_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QAMR"
+    primary-key: "{QAMR_PK}"
+
+# QAVE - Inspection Usage Decision [TIER 3 | 11.083.415 linhas]
+# View client column is MANDANT (not MANDT)
+  - name: "extract-everest-QAVE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDANT, '_', PRUEFLOS, '_', KZART, '_', ZAEHLER) AS QAVE_PK, *
+      FROM hub_dev.g_external.v_cognite_qave_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QAVE"
+    primary-key: "{QAVE_PK}"
+
+# QMAT - Inspection Type Material Parameters [TIER 2 | 1.954.680 linhas]
+  - name: "extract-everest-QMAT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', ART, '_', MATNR, '_', WERKS) AS QMAT_PK, *
+      FROM hub_dev.g_external.v_cognite_qmat_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QMAT"
+    primary-key: "{QMAT_PK}"
+
+# QPGR - Code Groups [TIER 1 | 3.121 linhas]
+  - name: "extract-everest-QPGR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KATALOGART, '_', CODEGRUPPE) AS QPGR_PK, *
+      FROM hub_dev.g_external.v_cognite_qpgr_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPGR"
+    primary-key: "{QPGR_PK}"
+
+# QPGT - Code Group Texts [TIER 1 | 35.263 linhas]
+# View client column is MANDANT (not MANDT)
+  - name: "extract-everest-QPGT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDANT, '_', KATALOGART, '_', CODEGRUPPE, '_', SPRACHE) AS QPGT_PK, *
+      FROM hub_dev.g_external.v_cognite_qpgt_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPGT"
+    primary-key: "{QPGT_PK}"
+
+# QPCT - Code Texts [TIER 1 | 474.681 linhas]
+  - name: "extract-everest-QPCT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', KATALOGART, '_', CODEGRUPPE, '_', CODE, '_', SPRACHE, '_', VERSION) AS QPCT_PK, *
+      FROM hub_dev.g_external.v_cognite_qpct_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_QPCT"
+    primary-key: "{QPCT_PK}"
+
+# TQ80 - Notification Types [TIER 1 | 60 linhas]
+  - name: "extract-everest-TQ80"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', QMART) AS TQ80_PK, *
+      FROM hub_dev.g_external.v_cognite_tq80_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_TQ80"
+    primary-key: "{TQ80_PK}"
+
+# END QUALITY MANAGEMENT
+
+# SERIAL NUMBER TABLES
+
+# OBJK - Plant Maintenance Object List [TIER 2 | 8.800.815 linhas]
+  - name: "extract-everest-OBJK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBKNR, '_', OBZAE) AS OBJK_PK, *
+      FROM hub_dev.g_external.v_cognite_objk_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_OBJK"
+    primary-key: "{OBJK_PK}"
+
+# SER01 - Serial Numbers for Delivery [TIER 1 | 535.535 linhas]
+  - name: "extract-everest-SER01"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBKNR) AS SER01_PK, *
+      FROM hub_dev.g_external.v_cognite_ser01_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER01"
+    primary-key: "{SER01_PK}"
+
+# SER03 - Serial Numbers for Goods Movements [TIER 2 | 1.543.771 linhas]
+  - name: "extract-everest-SER03"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBKNR) AS SER03_PK, *
+      FROM hub_dev.g_external.v_cognite_ser03_everest
+      WHERE DATETIMESTAMP >= date_format(current_timestamp() - INTERVAL 1 YEAR, 'yyyy-MM-dd HH:mm:ss')
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER03"
+    primary-key: "{SER03_PK}"
+
+# SER05 - Serial Numbers for PP Order [TIER 1 | 55.035 linhas]
+  - name: "extract-everest-SER05"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', OBKNR) AS SER05_PK, *
+      FROM hub_dev.g_external.v_cognite_ser05_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_SER05"
+    primary-key: "{SER05_PK}"
+
+# END SERIAL NUMBER
+
+# ORGANIZATIONAL & CUSTOMIZING TABLES
+
+# T001 - Company Codes [TIER 1 | 430 linhas]
+  - name: "extract-everest-T001"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', BUKRS) AS T001_PK, *
+      FROM hub_dev.g_external.v_cognite_t001_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001"
+    primary-key: "{T001_PK}"
+
+# T001K - Valuation Area [TIER 1 | 339 linhas]
+  - name: "extract-everest-T001K"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', BWKEY) AS T001K_PK, *
+      FROM hub_dev.g_external.v_cognite_t001k_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001K"
+    primary-key: "{T001K_PK}"
+
+# T001L - Storage Locations [TIER 1 | 4.168 linhas]
+  - name: "extract-everest-T001L"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WERKS, '_', LGORT) AS T001L_PK, *
+      FROM hub_dev.g_external.v_cognite_t001l_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001L"
+    primary-key: "{T001L_PK}"
+
+# T001W - Plants and Branches [TIER 1 | 336 linhas]
+  - name: "extract-everest-T001W"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WERKS) AS T001W_PK, *
+      FROM hub_dev.g_external.v_cognite_t001w_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T001W"
+    primary-key: "{T001W_PK}"
+
+# T003P - Order Type Descriptions [TIER 1 | 1.882 linhas]
+  - name: "extract-everest-T003P"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(CLIENT, '_', SPRAS, '_', AUART) AS T003P_PK, *
+      FROM hub_dev.g_external.v_cognite_t003p_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T003P"
+    primary-key: "{T003P_PK}"
+
+# T006 - Units of Measurement [TIER 1 | 484 linhas]
+  - name: "extract-everest-T006"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MSEHI) AS T006_PK, *
+      FROM hub_dev.g_external.v_cognite_t006_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T006"
+    primary-key: "{T006_PK}"
+
+# T006A - Language-Dependent Unit of Measure [TIER 1 | 8.969 linhas]
+  - name: "extract-everest-T006A"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', MSEHI) AS T006A_PK, *
+      FROM hub_dev.g_external.v_cognite_t006a_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T006A"
+    primary-key: "{T006A_PK}"
+
+# T023 - Material Groups [TIER 1 | 769 linhas]
+  - name: "extract-everest-T023"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MATKL) AS T023_PK, *
+      FROM hub_dev.g_external.v_cognite_t023_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T023"
+    primary-key: "{T023_PK}"
+
+# T023T - Material Group Descriptions [TIER 1 | 11.105 linhas]
+  - name: "extract-everest-T023T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', MATKL) AS T023T_PK, *
+      FROM hub_dev.g_external.v_cognite_t023t_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T023T"
+    primary-key: "{T023T_PK}"
+
+# T024 - Purchasing Groups [TIER 1 | 1.189 linhas]
+  - name: "extract-everest-T024"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EKGRP) AS T024_PK, *
+      FROM hub_dev.g_external.v_cognite_t024_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024"
+    primary-key: "{T024_PK}"
+
+# T024D - MRP Controllers [TIER 1 | 9.285 linhas]
+  - name: "extract-everest-T024D"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WERKS, '_', DISPO) AS T024D_PK, *
+      FROM hub_dev.g_external.v_cognite_t024d_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024D"
+    primary-key: "{T024D_PK}"
+
+# T024E - Purchasing Organizations [TIER 1 | 62 linhas]
+  - name: "extract-everest-T024E"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EKORG) AS T024E_PK, *
+      FROM hub_dev.g_external.v_cognite_t024e_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024E"
+    primary-key: "{T024E_PK}"
+
+# T024I - Maintenance Planner Groups [TIER 1 | 1.963 linhas]
+  - name: "extract-everest-T024I"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', IWERK, '_', INGRP) AS T024I_PK, *
+      FROM hub_dev.g_external.v_cognite_t024i_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T024I"
+    primary-key: "{T024I_PK}"
+
+# T134 - Material Types [TIER 1 | 40 linhas]
+  - name: "extract-everest-T134"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', MTART) AS T134_PK, *
+      FROM hub_dev.g_external.v_cognite_t134_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T134"
+    primary-key: "{T134_PK}"
+
+# T134T - Material Type Descriptions [TIER 1 | 765 linhas]
+  - name: "extract-everest-T134T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', MTART) AS T134T_PK, *
+      FROM hub_dev.g_external.v_cognite_t134t_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T134T"
+    primary-key: "{T134T_PK}"
+
+# T156 - Movement Types [TIER 1 | 349 linhas]
+  - name: "extract-everest-T156"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', BWART) AS T156_PK, *
+      FROM hub_dev.g_external.v_cognite_t156_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T156"
+    primary-key: "{T156_PK}"
+
+# T156T - Movement Type Texts [TIER 1 | 58.621 linhas]
+  - name: "extract-everest-T156T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', BWART, '_', SOBKZ, '_', KZBEW, '_', KZZUG, '_', KZVBR) AS T156T_PK, *
+      FROM hub_dev.g_external.v_cognite_t156t_everest
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T156T"
+    primary-key: "{T156T_PK}"
+
+# T156HT - Main Text for Movement Type [TIER ? | sem contagem]
+  - name: "extract-everest-T156HT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', SPRAS, '_', BWART) AS T156HT_PK, *
+      FROM hub_dev.g_external.v_cognite_t156ht_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T156HT"
+    primary-key: "{T156HT_PK}"
+
+# T353I - Maintenance Activity Types [TIER ? | sem contagem]
+  - name: "extract-everest-T353I"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', ILART) AS T353I_PK, *
+      FROM hub_dev.g_external.v_cognite_t353i_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T353I"
+    primary-key: "{T353I_PK}"
+
+# T356 - Priorities [TIER ? | sem contagem]
+  - name: "extract-everest-T356"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', ARTPR, '_', PRIOK) AS T356_PK, *
+      FROM hub_dev.g_external.v_cognite_t356_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T356"
+    primary-key: "{T356_PK}"
+
+# T357 - Plant Sections [TIER ? | sem contagem]
+  - name: "extract-everest-T357"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', WERKS, '_', BEBER) AS T357_PK, *
+      FROM hub_dev.g_external.v_cognite_t357_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T357"
+    primary-key: "{T357_PK}"
+
+# T370F - Functional Location Category [TIER ? | sem contagem]
+  - name: "extract-everest-T370F"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', FLTYP) AS T370F_PK, *
+      FROM hub_dev.g_external.v_cognite_t370f_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T370F"
+    primary-key: "{T370F_PK}"
+
+# T370S - Functional Location Structure Indicators [TIER ? | sem contagem]
+  - name: "extract-everest-T370S"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', TPLKZ) AS T370S_PK, *
+      FROM hub_dev.g_external.v_cognite_t370s_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T370S"
+    primary-key: "{T370S_PK}"
+
+# T370T - Equipment Categories [TIER ? | sem contagem]
+  - name: "extract-everest-T370T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT CONCAT(MANDT, '_', EQTYP) AS T370T_PK, *
+      FROM hub_dev.g_external.v_cognite_t370t_everest
+      WHERE coalesce(
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss.SSSSSS'),
+              try_to_timestamp(DATETIMESTAMP, 'yyyy-MM-dd HH:mm:ss')
+            ) >= current_timestamp() - INTERVAL 1 YEAR
+      LIMIT 10
+    destination:
+      type: "raw"
+      database: "db_databricks_everest_raw"
+      table: "tb_T370T"
+    primary-key: "{T370T_PK}"
+
+# END ORGANIZATIONAL & CUSTOMIZING

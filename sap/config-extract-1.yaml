@@ -1,0 +1,1007 @@
+version: 1
+type: local
+
+logger:
+  console:
+    level: DEBUG
+
+  file:
+    level: DEBUG
+    path: "./dbextractor.log"
+    retention: 7
+
+cognite:
+  host: "https://az-phx-001.cognitedata.com"
+  project: "bdx-dev"
+  timeout: 3000
+
+  idp-authentication:
+    authority: "https://login.microsoftonline.com/"
+    tenant: ""
+    client-id: ""
+    secret: ""
+    scopes:
+      - "https://az-phx-001.cognitedata.com/.default"
+
+  connection:
+    disable-ssl: true
+
+  data-set:
+    external-id: 'ds_databricks_everest_dat'
+
+  extraction-pipeline:
+    external-id: 'ep_databricks_everest_dbExtractor_1'
+
+extractor:
+  mode: continuous
+  parallelism: 1
+  upload-queue-size: 50000
+  state-store:
+    raw:
+      database: db_extractor_state
+      table: everest_extract_1
+
+databases:
+  - type: "odbc"
+    name: "db-databricks-raw"
+    connection-string: 
+      Driver={Databricks ODBC Driver};
+      Host=;
+      Port=443;
+      HTTPPath=;
+      SSL=1;
+      ThriftTransport=2;
+      AuthMech=3;
+      UID=token;
+      PWD= 
+
+queries:
+
+# === TIER 1 ===
+
+# MDMA - MRP Area for Material [TIER 1 | 0 linhas]
+  - name: "extract-everest-MDMA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR, BERID), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_mdma_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MdmaEverest"
+    primary-key: "{key}"
+
+# T134 - Material Types [TIER 1 | 40 linhas]
+  - name: "extract-everest-T134"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MTART), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t134_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T134Everest"
+    primary-key: "{key}"
+
+# T001W - Plants and Branches [TIER 1 | 336 linhas]
+  - name: "extract-everest-T001W"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, WERKS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t001w_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T001wEverest"
+    primary-key: "{key}"
+
+# T001 - Company Codes [TIER 1 | 430 linhas]
+  - name: "extract-everest-T001"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, BUKRS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t001_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T001Everest"
+    primary-key: "{key}"
+
+# T023 - Material Groups [TIER 1 | 769 linhas]
+  - name: "extract-everest-T023"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATKL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t023_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T023Everest"
+    primary-key: "{key}"
+
+# T024I - Maintenance Planner Groups [TIER 1 | 1.963 linhas]
+  - name: "extract-everest-T024I"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, IWERK, INGRP), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t024i_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T024iEverest"
+    primary-key: "{key}"
+
+# CRCA - Work Center Capacity Allocation [TIER 1 | 5.638 linhas]
+  - name: "extract-everest-CRCA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, OBJTY, OBJID, CANUM), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_crca_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_CrcaEverest"
+    primary-key: "{key}"
+
+# TJ30T - Texts for User Status [TIER 1 | 7.213 linhas]
+  - name: "extract-everest-TJ30T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, STSMA, ESTAT, SPRAS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_tj30t_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_Tj30tEverest"
+    primary-key: "{key}"
+
+# T024D - MRP Controllers [TIER 1 | 9.285 linhas]
+  - name: "extract-everest-T024D"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, WERKS, DISPO), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t024d_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T024dEverest"
+    primary-key: "{key}"
+
+# IFLOT - Functional Location Master Data [TIER 1 | 20.068 linhas]
+  - name: "extract-everest-IFLOT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, TPLNR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_iflot_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_IflotEverest"
+    primary-key: "{key}"
+
+# CRCO - Assignment of Work Center to Cost Center [TIER 1 | 28.134 linhas]
+  - name: "extract-everest-CRCO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, OBJTY, OBJID, LASET, ENDDA, LANUM), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_crco_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_CrcoEverest"
+    primary-key: "{key}"
+
+# MSKU - Special Stocks with Customer [TIER 1 | 49.694 linhas]
+  - name: "extract-everest-MSKU"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR, WERKS, CHARG, SOBKZ, KUNNR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_msku_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MskuEverest"
+    primary-key: "{key}"
+
+# T156T - Movement Type Texts [TIER 1 | 58.621 linhas]
+  - name: "extract-everest-T156T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, SPRAS, BWART, SOBKZ, KZBEW, KZZUG, KZVBR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t156t_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T156tEverest"
+    primary-key: "{key}"
+
+# MPOS - Maintenance Item [TIER 1 | 115.255 linhas]
+  - name: "extract-everest-MPOS"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, WARPL, WAPOS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_mpos_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MposEverest"
+    primary-key: "{key}"
+
+# PLFL - Task List Sequences [TIER 1 | 261.515 linhas]
+  - name: "extract-everest-PLFL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, PLNTY, PLNNR, PLNAL, PLNFL, ZAEHL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_plfl_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_PlflEverest"
+    primary-key: "{key}"
+
+# KNVK - Customer Master Contact Partner [TIER 1 | 312.248 linhas]
+  - name: "extract-everest-KNVK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, PARNR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_knvk_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_KnvkEverest"
+    primary-key: "{key}"
+
+# QMUR - Quality Notification Causes [TIER 1 | 707.389 linhas]
+  - name: "extract-everest-QMUR"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, QMNUM, FENUM, URNUM), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_qmur_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_QmurEverest"
+    primary-key: "{key}"
+
+
+# === TIER ? ===
+
+# EAPL - Allocation of Task Lists to Equipment [TIER ? | sem contagem]
+  - name: "extract-everest-EAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, EQUNR, PLNTY, PLNNR, PLNAL, ZKRIZ, ZAEHL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_eapl_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_EaplEverest"
+    primary-key: "{key}"
+
+# IMPTT - Measuring Point [TIER ? | sem contagem]
+  - name: "extract-everest-IMPTT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, POINT), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_imptt_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_ImpttEverest"
+    primary-key: "{key}"
+
+# KAKT - Capacity Description [TIER ? | sem contagem]
+  - name: "extract-everest-KAKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, KAPID, SPRAS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_kakt_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_KaktEverest"
+    primary-key: "{key}"
+
+# RKPF - Reservation Document Header [TIER ? | sem contagem]
+  - name: "extract-everest-RKPF"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, RSNUM), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_rkpf_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_RkpfEverest"
+    primary-key: "{key}"
+
+# T353I - Maintenance Activity Types [TIER ? | sem contagem]
+  - name: "extract-everest-T353I"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, ILART), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t353i_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T353iEverest"
+    primary-key: "{key}"
+
+# T370F - Functional Location Category [TIER ? | sem contagem]
+  - name: "extract-everest-T370F"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, FLTYP), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t370f_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T370fEverest"
+    primary-key: "{key}"
+
+# T430T - Control Key Texts [TIER ? | sem contagem]
+  - name: "extract-everest-T430T"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, SPRAS, PLNAW, STEUS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_t430t_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_T430tEverest"
+    primary-key: "{key}"
+
+
+# === TIER 2 ===
+
+# PLMZ - Allocation of BOM Items to Operations [TIER 2 | 1.106.480 linhas]
+  - name: "extract-everest-PLMZ"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, PLNTY, PLNNR, ZUONR, ZAEHL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_plmz_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_PlmzEverest"
+    primary-key: "{key}"
+
+# MARA - General Material Data [TIER 2 | 1.254.124 linhas]
+  - name: "extract-everest-MARA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_mara_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MaraEverest"
+    primary-key: "{key}"
+
+# MARM - Units of Measure for Material [TIER 2 | 1.399.952 linhas]
+  - name: "extract-everest-MARM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR, MEINH), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_marm_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MarmEverest"
+    primary-key: "{key}"
+
+# KNVV - Customer Master Sales Data [TIER 2 | 1.487.203 linhas]
+  - name: "extract-everest-KNVV"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, KUNNR, VKORG, VTWEG, SPART), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_knvv_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_KnvvEverest"
+    primary-key: "{key}"
+
+# MAKT - Material Descriptions [TIER 2 | 1.707.991 linhas]
+  - name: "extract-everest-MAKT"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR, SPRAS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_makt_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MaktEverest"
+    primary-key: "{key}"
+
+# QMEL - Quality Notification [TIER 2 | 1.989.965 linhas]
+  - name: "extract-everest-QMEL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, QMNUM), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_qmel_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_QmelEverest"
+    primary-key: "{key}"
+
+# MARC - Plant Data for Material [TIER 2 | 2.331.034 linhas]
+  - name: "extract-everest-MARC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR, WERKS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_marc_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MarcEverest"
+    primary-key: "{key}"
+
+# EQUZ - Equipment Time Segment [TIER 2 | 2.766.450 linhas]
+  - name: "extract-everest-EQUZ"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, EQUNR, DATBI, EQLFN), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_equz_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_EquzEverest"
+    primary-key: "{key}"
+
+# MAPL - Assignment of Task Lists to Materials [TIER 2 | 3.396.230 linhas]
+  - name: "extract-everest-MAPL"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR, WERKS, PLNTY, PLNNR, PLNAL, ZAEHL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_mapl_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MaplEverest"
+    primary-key: "{key}"
+
+# EKKO - Purchasing Document Header [TIER 2 | 5.377.290 linhas]
+  - name: "extract-everest-EKKO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, EBELN), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_ekko_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_EkkoEverest"
+    primary-key: "{key}"
+
+# OBJK - Plant Maintenance Object List [TIER 2 | 8.800.815 linhas]
+  - name: "extract-everest-OBJK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, OBKNR, OBZAE), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_objk_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_ObjkEverest"
+    primary-key: "{key}"
+
+
+# === TIER 3 ===
+
+# QAVE - Inspection Usage Decision [TIER 3 | 11.083.415 linhas]
+  - name: "extract-everest-QAVE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDANT, PRUEFLOS, KZART, ZAEHLER), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_qave_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_QaveEverest"
+    primary-key: "{key}"
+
+# PMCO - Cost Structure of Maintenance Order [TIER 3 | 12.346.036 linhas]
+  - name: "extract-everest-PMCO"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, OBJNR, COCUR, BELTP, WRTTP, GJAHR, ACPOS, VERSN, PERBL, VORGA, BEMOT, ABKAT), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_pmco_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_PmcoEverest"
+    primary-key: "{key}"
+
+# MCHB - Batch Stocks [TIER 3 | 13.975.831 linhas]
+  - name: "extract-everest-MCHB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MATNR, WERKS, LGORT, CHARG), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_mchb_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MchbEverest"
+    primary-key: "{key}"
+
+# AUFK - Order Master Data [TIER 3 | 14.446.636 linhas]
+  - name: "extract-everest-AUFK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, AUFNR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_aufk_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_AufkEverest"
+    primary-key: "{key}"
+
+# VTTK - Shipment Header [TIER 3 | 17.116.336 linhas]
+  - name: "extract-everest-VTTK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, TKNUM), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_vttk_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_VttkEverest"
+    primary-key: "{key}"
+
+# LIKP - Delivery Header Data [TIER 3 | 25.404.608 linhas]
+  - name: "extract-everest-LIKP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, VBELN), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_likp_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_LikpEverest"
+    primary-key: "{key}"
+
+# VBBE - Sales Requirements Individual Records [TIER 3 | 33.057.061 linhas]
+  - name: "extract-everest-VBBE"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, VBELN, POSNR, ETENR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_vbbe_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_VbbeEverest"
+    primary-key: "{key}"
+
+# KSSK - Allocation Table: Object to Class [TIER 3 | 46.527.246 linhas]
+  - name: "extract-everest-KSSK"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, OBJEK, MAFID, KLART, ADZHL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_kssk_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_KsskEverest"
+    primary-key: "{key}"
+
+# AFVC - Order Operations [TIER 3 | 72.700.785 linhas]
+  - name: "extract-everest-AFVC"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, AUFPL, APLZL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_afvc_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_AfvcEverest"
+    primary-key: "{key}"
+
+
+# === TIER 4 ===
+
+# VBEP - Sales Document Schedule Line Data [TIER 4 | 112.112.436 linhas]
+  - name: "extract-everest-VBEP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, VBELN, POSNR, ETENR), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_vbep_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_VbepEverest"
+    primary-key: "{key}"
+
+# VBPA - Sales Document Partner [TIER 4 | 263.924.069 linhas]
+  - name: "extract-everest-VBPA"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, VBELN, POSNR, PARVW), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_vbpa_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_VbpaEverest"
+    primary-key: "{key}"
+
+# AUFM - Goods Movements for Order [TIER 4 | 350.809.194 linhas]
+  - name: "extract-everest-AUFM"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, MBLNR, MJAHR, ZEILE), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_aufm_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_AufmEverest"
+    primary-key: "{key}"
+
+# COSP - CO Object: Cost Totals for External Postings [TIER 4 | 706.716.382 linhas]
+  - name: "extract-everest-COSP"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, LEDNR, OBJNR, GJAHR, WRTTP, VERSN, KSTAR, HRKFT, VRGNG, VBUND, PARGB, BEKNZ, TWAER, PERBL), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_cosp_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_CospEverest"
+    primary-key: "{key}"
+
+
+# === TIER 5 ===
+
+# MDTB - MRP Table [TIER 5 | 5.379.495.282 linhas]
+  - name: "extract-everest-MDTB"
+    database: "db-databricks-raw"
+    query: >
+      SELECT sha2(concat_ws('_', MANDT, DTNUM, DTPOS), 256) AS key, *
+      FROM hub_dev.g_external.v_cognite_mdtb_everest
+      WHERE {incremental_field} >= '{start_at}'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2026-08-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_MdtbEverest"
+    primary-key: "{key}"
+
