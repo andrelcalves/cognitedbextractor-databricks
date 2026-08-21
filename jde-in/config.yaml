@@ -102,7 +102,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F40306Jdein"
+      table: "tb_F40306Jdeint"
     primary-key: "{key}"
 
 # F30026 - Item Cost Component Add-Ons
@@ -150,7 +150,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F30026Jdein"
+      table: "tb_F30026Jdeint"
     primary-key: "{key}"
 
 # F0010 - Company Constants
@@ -198,7 +198,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F0010Jdein"
+      table: "tb_F0010Jdeint"
     primary-key: "{key}"
 
 # F3003 - Routing Master
@@ -246,7 +246,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F3003Jdein"
+      table: "tb_F3003Jdeint"
     primary-key: "{key}"
 
 # F40072 - Item Preference Groups
@@ -294,7 +294,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F40072Jdein"
+      table: "tb_F40072Jdeint"
     primary-key: "{key}"
 
 # F41002 - Unit of Measure Conversion
@@ -342,7 +342,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F41002Jdein"
+      table: "tb_F41002Jdeint"
     primary-key: "{key}"
 
 # F4201 - Sales Order Header
@@ -390,7 +390,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F4201Jdein"
+      table: "tb_F4201Jdeint"
     primary-key: "{key}"
 
 # F3002 - Bill of Material Master
@@ -438,7 +438,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F3002Jdein"
+      table: "tb_F3002Jdeint"
     primary-key: "{key}"
 
 # F4108 - Lot Master
@@ -486,7 +486,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F4108Jdein"
+      table: "tb_F4108Jdeint"
     primary-key: "{key}"
 
 # F4211 - Sales Order Detail
@@ -534,7 +534,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F4211Jdein"
+      table: "tb_F4211Jdeint"
     primary-key: "{key}"
 
 # F4102 - Item Branch
@@ -582,7 +582,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F4102Jdein"
+      table: "tb_F4102Jdeint"
     primary-key: "{key}"
 
 # F03012 - Customer Master by Line of Business
@@ -630,7 +630,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F03012Jdein"
+      table: "tb_F03012Jdeint"
     primary-key: "{key}"
 
 # F4301 - Purchase Order Header
@@ -678,7 +678,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F4301Jdein"
+      table: "tb_F4301Jdeint"
     primary-key: "{key}"
 
 # F42119 - Sales Order Detail Ledger
@@ -726,7 +726,7 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F42119Jdein"
+      table: "tb_F42119Jdeint"
     primary-key: "{key}"
 
 # F4111 - Item Ledger
@@ -774,6 +774,6 @@ queries:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F4111Jdein"
+      table: "tb_F4111Jdeint"
     primary-key: "{key}"
 

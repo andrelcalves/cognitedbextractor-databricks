@@ -4,3 +4,6 @@
 # Artefatos locais
 __pycache__/
 *.pyc
+
+# Relatorios diarios de ingestao Cognite (gerados localmente)
+scripts/reports/

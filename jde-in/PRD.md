@@ -4,7 +4,7 @@
 Databricks → Cognite JDE IN DB Extractor (single continuous instance)
 
 ## Purpose
-Extract JDE India views from Databricks (`hub_dev.g_external.v_cognite_f*_jdeint`) into Cognite RAW (`db_databricks_glb_raw.tb_*Jdein`) with full-row SHA-256 keys (`primary-key: "{key}"`), incremental load from **2026-08-01**, and a **15-minute** continuous schedule.
+Extract JDE India views from Databricks (`hub_dev.g_external.v_cognite_f*_jdeint`) into Cognite RAW (`db_databricks_glb_raw.tb_*Jdeint`) with full-row SHA-256 keys (`primary-key: "{key}"`), incremental load from **2026-08-01**, and a **15-minute** continuous schedule.
 
 **Prerequisite:** data through July is already in Cognite. This config does **not** re-extract pre-August history.
 
@@ -20,7 +20,7 @@ Extract JDE India views from Databricks (`hub_dev.g_external.v_cognite_f*_jdeint
 |---------|--------|
 | Extraction pipeline | `ep_databricks_jde_in_dbExtractor` |
 | RAW database | `db_databricks_glb_raw` |
-| RAW table pattern | `tb_{Table}Jdein` (e.g. `tb_F3003Jdein`) |
+| RAW table pattern | `tb_{Table}Jdeint` (e.g. `tb_F3003Jdeint`) |
 | State store | RAW `db_extractor_state` / `jdein_extract` |
 | Mode | `continuous` |
 | Parallelism | `1` (small before large) |
@@ -83,7 +83,7 @@ SELECT
 - Query: `extract-jdein-{TABLE}`
 - Source: `hub_dev.g_external.v_cognite_{table_lower}_jdeint`
 - Destination DB: `db_databricks_glb_raw`
-- Destination table: `tb_{TABLE}Jdein`
+- Destination table: `tb_{TABLE}Jdeint`
 
 ### R4 — Single extractor, small-first
 - One config / one pipeline / one state table
@@ -107,7 +107,7 @@ See R1 for the `key` SELECT; destination example:
     destination:
       type: "raw"
       database: "db_databricks_glb_raw"
-      table: "tb_F3003Jdein"
+      table: "tb_F3003Jdeint"
     primary-key: "{key}"
 ```
 

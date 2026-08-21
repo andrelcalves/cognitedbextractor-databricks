@@ -2,7 +2,7 @@
 
 Documento de apoio para as **15** views no extractor contínuo único. Regras em [`PRD.md`](PRD.md).
 
-**Status:** um extractor (`config.yaml`); incremental desde `2026-08-01`; schedule `15m`; destino `db_databricks_glb_raw.tb_*Jdein`; `parallelism: 1`; `key` = SHA-256 full-row JSON.
+**Status:** um extractor (`config.yaml`); incremental desde `2026-08-01`; schedule `15m`; destino `db_databricks_glb_raw.tb_*Jdeint`; `parallelism: 1`; `key` = SHA-256 full-row JSON.
 
 ---
 
@@ -37,7 +37,7 @@ F42119 e F4111 dominam o tempo. O intervalo de 15m só estabiliza depois do wate
 ## Destino RAW e chaves
 
 - Database: `db_databricks_glb_raw`
-- Tabela: `tb_{TABLE}Jdein` (ex. `tb_F3003Jdein`)
+- Tabela: `tb_{TABLE}Jdeint` (ex. `tb_F3003Jdeint`)
 - `primary-key: "{key}"` — SHA-256 of the full row as canonical sorted JSON (`struct(*)`)
 - Qualquer mudança de coluna gera nova chave RAW (append)
 
