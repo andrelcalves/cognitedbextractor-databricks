@@ -129,9 +129,12 @@ def resolve_table(item: Any, catalog: str, schema: str) -> dict[str, Any]:
     if not isinstance(item, dict) or not item.get("name"):
         raise SystemExit(f"Each table needs a name: {item!r}")
     name = str(item["name"]).strip()
-    if "." not in name:
+    dots = name.count(".")
+    if dots == 0:
         parts = [p for p in (catalog, schema, name) if p]
         name = ".".join(parts)
+    elif dots == 1 and catalog:
+        name = f"{catalog}.{name}"
     return {
         "name": name,
         "domain": str(item.get("domain") or infer_domain(name)),
@@ -260,7 +263,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"Config not found: {config_path}")
 
     cfg = load_config(config_path)
-    catalog = str(cfg.get("catalog") or "hub_dev").strip()
+    catalog = str(cfg.get("catalog") or "").strip()
     schema = str(cfg.get("schema") or "g_external").strip()
     tz_name = str(cfg.get("timezone") or "America/Sao_Paulo").strip()
     default_watermark = str(cfg.get("watermark_column") or "DATETIMESTAMP").strip()
