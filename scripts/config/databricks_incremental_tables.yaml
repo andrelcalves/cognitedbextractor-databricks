@@ -1,0 +1,447 @@
+# Tables scanned by scripts/databricks_incremental_volume.py
+# Edit this list to add/remove views. Short names can be used with catalog/schema.
+catalog: hub_dev
+schema: g_external
+timezone: America/Sao_Paulo
+watermark_column: DATETIMESTAMP
+# Default created column for SAP-style views (ignored when the column is missing).
+created_column: ERDAT
+# Full COUNT(*) is off by default (too expensive on large views). Set true per table to enable.
+count_total: false
+tables:
+  # --- everest ---
+  - name: v_cognite_mdma_everest
+    domain: everest
+  - name: v_cognite_t134_everest
+    domain: everest
+  - name: v_cognite_t001w_everest
+    domain: everest
+  - name: v_cognite_t001_everest
+    domain: everest
+  - name: v_cognite_t023_everest
+    domain: everest
+  - name: v_cognite_t024i_everest
+    domain: everest
+  - name: v_cognite_crca_everest
+    domain: everest
+  - name: v_cognite_tj30t_everest
+    domain: everest
+  - name: v_cognite_t024d_everest
+    domain: everest
+  - name: v_cognite_iflot_everest
+    domain: everest
+  - name: v_cognite_crco_everest
+    domain: everest
+  - name: v_cognite_msku_everest
+    domain: everest
+  - name: v_cognite_t156t_everest
+    domain: everest
+  - name: v_cognite_mpos_everest
+    domain: everest
+  - name: v_cognite_plfl_everest
+    domain: everest
+  - name: v_cognite_knvk_everest
+    domain: everest
+  - name: v_cognite_qmur_everest
+    domain: everest
+  - name: v_cognite_eapl_everest
+    domain: everest
+  - name: v_cognite_imptt_everest
+    domain: everest
+  - name: v_cognite_kakt_everest
+    domain: everest
+  - name: v_cognite_rkpf_everest
+    domain: everest
+  - name: v_cognite_t353i_everest
+    domain: everest
+  - name: v_cognite_t370f_everest
+    domain: everest
+  - name: v_cognite_t430t_everest
+    domain: everest
+  - name: v_cognite_plmz_everest
+    domain: everest
+  - name: v_cognite_mara_everest
+    domain: everest
+  - name: v_cognite_marm_everest
+    domain: everest
+  - name: v_cognite_knvv_everest
+    domain: everest
+  - name: v_cognite_makt_everest
+    domain: everest
+  - name: v_cognite_qmel_everest
+    domain: everest
+  - name: v_cognite_marc_everest
+    domain: everest
+  - name: v_cognite_equz_everest
+    domain: everest
+  - name: v_cognite_mapl_everest
+    domain: everest
+  - name: v_cognite_ekko_everest
+    domain: everest
+  - name: v_cognite_objk_everest
+    domain: everest
+  - name: v_cognite_qave_everest
+    domain: everest
+  - name: v_cognite_pmco_everest
+    domain: everest
+  - name: v_cognite_mchb_everest
+    domain: everest
+  - name: v_cognite_aufk_everest
+    domain: everest
+  - name: v_cognite_vttk_everest
+    domain: everest
+  - name: v_cognite_likp_everest
+    domain: everest
+  - name: v_cognite_vbbe_everest
+    domain: everest
+  - name: v_cognite_kssk_everest
+    domain: everest
+  - name: v_cognite_afvc_everest
+    domain: everest
+  - name: v_cognite_vbep_everest
+    domain: everest
+  - name: v_cognite_vbpa_everest
+    domain: everest
+  - name: v_cognite_aufm_everest
+    domain: everest
+  - name: v_cognite_cosp_everest
+    domain: everest
+  - name: v_cognite_mdtb_everest
+    domain: everest
+  - name: v_cognite_tvsb_everest
+    domain: everest
+  - name: v_cognite_tq80_everest
+    domain: everest
+  - name: v_cognite_t001k_everest
+    domain: everest
+  - name: v_cognite_t006_everest
+    domain: everest
+  - name: v_cognite_t024_everest
+    domain: everest
+  - name: v_cognite_qpgr_everest
+    domain: everest
+  - name: v_cognite_kako_everest
+    domain: everest
+  - name: v_cognite_crtx_everest
+    domain: everest
+  - name: v_cognite_kazy_everest
+    domain: everest
+  - name: v_cognite_iflotx_everest
+    domain: everest
+  - name: v_cognite_mpla_everest
+    domain: everest
+  - name: v_cognite_ser05_everest
+    domain: everest
+  - name: v_cognite_cskt_everest
+    domain: everest
+  - name: v_cognite_plwp_everest
+    domain: everest
+  - name: v_cognite_mkal_everest
+    domain: everest
+  - name: v_cognite_qpct_everest
+    domain: everest
+  - name: v_cognite_mast_everest
+    domain: everest
+  - name: v_cognite_afrc_everest
+    domain: everest
+  - name: v_cognite_iflos_everest
+    domain: everest
+  - name: v_cognite_t156ht_everest
+    domain: everest
+  - name: v_cognite_t301_everest
+    domain: everest
+  - name: v_cognite_t357_everest
+    domain: everest
+  - name: v_cognite_t370t_everest
+    domain: everest
+  - name: v_cognite_t430_everest
+    domain: everest
+  - name: v_cognite_tc25t_everest
+    domain: everest
+  - name: v_cognite_affw_everest
+    domain: everest
+  - name: v_cognite_stko_everest
+    domain: everest
+  - name: v_cognite_kna1_everest
+    domain: everest
+  - name: v_cognite_ser03_everest
+    domain: everest
+  - name: v_cognite_qmat_everest
+    domain: everest
+  - name: v_cognite_eine_everest
+    domain: everest
+  - name: v_cognite_mdkp_everest
+    domain: everest
+  - name: v_cognite_plas_everest
+    domain: everest
+  - name: v_cognite_mhio_everest
+    domain: everest
+  - name: v_cognite_afpo_everest
+    domain: everest
+  - name: v_cognite_mch1_everest
+    domain: everest
+  - name: v_cognite_iloa_everest
+    domain: everest
+  - name: v_cognite_afko_everest
+    domain: everest
+  - name: v_cognite_vbak_everest
+    domain: everest
+  - name: v_cognite_stpo_everest
+    domain: everest
+  - name: v_cognite_mard_everest
+    domain: everest
+  - name: v_cognite_stas_everest
+    domain: everest
+  - name: v_cognite_ekbe_everest
+    domain: everest
+  - name: v_cognite_keko_everest
+    domain: everest
+  - name: v_cognite_afvv_everest
+    domain: everest
+  - name: v_cognite_afru_everest
+    domain: everest
+  - name: v_cognite_mkpf_everest
+    domain: everest
+  - name: v_cognite_mseg_everest
+    domain: everest
+  - name: v_cognite_resb_everest
+    domain: everest
+  - name: v_cognite_coep_everest
+    domain: everest
+  - name: v_cognite_tpst_everest
+    domain: everest
+  - name: v_cognite_t024e_everest
+    domain: everest
+  - name: v_cognite_t156_everest
+    domain: everest
+  - name: v_cognite_t134t_everest
+    domain: everest
+  - name: v_cognite_t003p_everest
+    domain: everest
+  - name: v_cognite_t001l_everest
+    domain: everest
+  - name: v_cognite_crhd_everest
+    domain: everest
+  - name: v_cognite_t006a_everest
+    domain: everest
+  - name: v_cognite_t023t_everest
+    domain: everest
+  - name: v_cognite_eqst_everest
+    domain: everest
+  - name: v_cognite_qpgt_everest
+    domain: everest
+  - name: v_cognite_csks_everest
+    domain: everest
+  - name: v_cognite_kapa_everest
+    domain: everest
+  - name: v_cognite_lfa1_everest
+    domain: everest
+  - name: v_cognite_plko_everest
+    domain: everest
+  - name: v_cognite_ser01_everest
+    domain: everest
+  - name: v_cognite_qmfe_everest
+    domain: everest
+  - name: v_cognite_imrg_everest
+    domain: everest
+  - name: v_cognite_lagp_everest
+    domain: everest
+  - name: v_cognite_t356_everest
+    domain: everest
+  - name: v_cognite_t370s_everest
+    domain: everest
+  - name: v_cognite_tapl_everest
+    domain: everest
+  - name: v_cognite_tc25_everest
+    domain: everest
+  - name: v_cognite_tc37a_everest
+    domain: everest
+  - name: v_cognite_tvepz_everest
+    domain: everest
+  - name: v_cognite_eina_everest
+    domain: everest
+  - name: v_cognite_eqkt_everest
+    domain: everest
+  - name: v_cognite_equi_everest
+    domain: everest
+  - name: v_cognite_mhis_everest
+    domain: everest
+  - name: v_cognite_qmih_everest
+    domain: everest
+  - name: v_cognite_mbew_everest
+    domain: everest
+  - name: v_cognite_plpo_everest
+    domain: everest
+  - name: v_cognite_qmsm_everest
+    domain: everest
+  - name: v_cognite_ekkn_everest
+    domain: everest
+  - name: v_cognite_afih_everest
+    domain: everest
+  - name: v_cognite_lqua_everest
+    domain: everest
+  - name: v_cognite_qals_everest
+    domain: everest
+  - name: v_cognite_mcha_everest
+    domain: everest
+  - name: v_cognite_ekpo_everest
+    domain: everest
+  - name: v_cognite_eket_everest
+    domain: everest
+  - name: v_cognite_vttp_everest
+    domain: everest
+  - name: v_cognite_afwi_everest
+    domain: everest
+  - name: v_cognite_qamr_everest
+    domain: everest
+  - name: v_cognite_vbap_everest
+    domain: everest
+  - name: v_cognite_lips_everest
+    domain: everest
+  - name: v_cognite_ckis_everest
+    domain: everest
+  - name: v_cognite_ausp_everest
+    domain: everest
+  - name: v_cognite_vbfa_everest
+    domain: everest
+  - name: v_cognite_jest_everest
+    domain: everest
+  - name: v_cognite_eban_everest
+    domain: everest
+  # --- jdein ---
+  - name: v_cognite_f40306_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f30026_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f0010_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f3003_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f40072_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f41002_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f4201_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f3002_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f4108_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f4211_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f4102_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f03012_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f4301_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f42119_jdeint
+    domain: jdein
+    created_column: null
+  - name: v_cognite_f4111_jdeint
+    domain: jdein
+    created_column: null
+  # --- jdena ---
+  - name: v_cognite_F30026_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F0010_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F3003_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F40072_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F41002_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4201_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F3002_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F0006_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F0101_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F0911_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F30008_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F3111_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F3112_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F3411_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4101_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F41021_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4105_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4108_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F42019_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F43092_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4311_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F43121_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F43199_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4801_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4211_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4102_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F03012_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4301_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F42119_jdena
+    domain: jdena
+    created_column: null
+  - name: v_cognite_F4111_jdena
+    domain: jdena
+    created_column: null
