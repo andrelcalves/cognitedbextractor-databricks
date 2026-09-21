@@ -19,11 +19,15 @@ Usage (PowerShell):
   $env:DATABRICKS_HOST = "adb-xxxx.azuredatabricks.net"
   $env:DATABRICKS_HTTP_PATH = "/sql/1.0/warehouses/..."
   $env:DATABRICKS_TOKEN = "dapi..."
-  $env:COGNITE_TOKEN = "<jwt>"
 
+  # Cognite JWT (access_token from Bruno / Azure). No "Bearer " prefix.
+  $env:COGNITE_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
   python scripts/databricks_cognite_today.py --name MARA
-  python scripts/databricks_cognite_today.py --name F4101 --domain jdena
-  python scripts/databricks_cognite_today.py --name MARA --day 2026-09-21 --totals
+
+  python scripts/databricks_cognite_today.py --name MARA --token "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+  python scripts/databricks_cognite_today.py --name F4101 --domain jdena --token "<jwt>"
+  python scripts/databricks_cognite_today.py --name MARA --day 2026-09-21 --totals --token "<jwt>"
 """
 
 from __future__ import annotations
