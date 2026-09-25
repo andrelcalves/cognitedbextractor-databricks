@@ -9,8 +9,8 @@ Credentials:
   COGNITE_TOKEN     JWT (env or --token)
 
 Optional:
-  COGNITE_HOST      Default: https://az-phx-001.cognitedata.com
-  COGNITE_PROJECT   Default: bdx-dev
+  COGNITE_HOST      Default: https://az-phx-001.cognitedata.com  (or --host)
+  COGNITE_PROJECT   Default: bdx-dev  (or --project bdx-qa)
 
 Requires:
   pip install databricks-sql-connector cognite-sdk pyyaml
@@ -27,7 +27,8 @@ Usage (PowerShell):
   python scripts/databricks_cognite_today.py --name MARA --token "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
 
   python scripts/databricks_cognite_today.py --name F4101 --domain jdena --token "<jwt>"
-  python scripts/databricks_cognite_today.py --name MARA --day 2026-09-21 --totals --token "<jwt>"
+  python scripts/databricks_cognite_today.py --name STKO --day 2026-09-19 --project bdx-qa --token "<jwt>"
+  python scripts/databricks_cognite_today.py --name MARA --day 2026-09-21 --totals --project bdx-qa --token "<jwt>"
 """
 
 from __future__ import annotations
@@ -249,25 +250,26 @@ def cognite_today(
     )
     t0 = time.perf_counter()
     today_n = 0
-    for _row in client.raw.rows.list(
+    for chunk in client.raw.rows(
         db_name=database,
         table_name=table,
         columns=[],
         min_last_updated_time=min_ms,
+        chunk_size=10_000,
         limit=None,
     ):
-        today_n += 1
+        today_n += len(chunk)
     total: int | None = None
     if totals:
         total = 0
-        for _row in client.raw.rows(
+        for chunk in client.raw.rows(
             db_name=database,
             table_name=table,
             columns=[],
             chunk_size=10_000,
             limit=None,
         ):
-            total += 1
+            total += len(chunk)
     elapsed = time.perf_counter() - t0
     return today_n, total, elapsed
 
@@ -283,6 +285,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--database", default=DEFAULT_RAW_DATABASE, help=f"RAW database (default: {DEFAULT_RAW_DATABASE}).")
     p.add_argument("--day", default="", help="YYYY-MM-DD (default: today America/Sao_Paulo).")
     p.add_argument("--token", default="", help="Cognite JWT. Overrides COGNITE_TOKEN.")
+    p.add_argument(
+        "--project",
+        default="",
+        help=f"Cognite project. Overrides COGNITE_PROJECT (default: {DEFAULT_PROJECT}).",
+    )
+    p.add_argument(
+        "--host",
+        default="",
+        help=f"Cognite host. Overrides COGNITE_HOST (default: {DEFAULT_HOST}).",
+    )
     p.add_argument("--config", default=str(DEFAULT_CONFIG))
     p.add_argument("--watermark", default="DATETIMESTAMP")
     p.add_argument("--totals", action="store_true", help="Also COUNT(*) on Databricks and full RAW table (slow).")
@@ -305,17 +317,28 @@ def main(argv: list[str] | None = None) -> int:
         config_path=Path(args.config),
     )
     cdf_token = normalize_token(args.token or _env("COGNITE_TOKEN"))
-    cdf_host = _env("COGNITE_HOST", DEFAULT_HOST)
-    cdf_project = _env("COGNITE_PROJECT", DEFAULT_PROJECT)
+    cdf_host = (args.host or _env("COGNITE_HOST", DEFAULT_HOST)).rstrip("/")
+    cdf_project = args.project.strip() or _env("COGNITE_PROJECT", DEFAULT_PROJECT)
     if not cdf_token:
         print("Missing Cognite JWT. Set COGNITE_TOKEN or pass --token.", file=sys.stderr)
+        return 1
+    try:
+        import cognite.client  # noqa: F401
+    except ImportError:
+        print(
+            "No module named cognite. Install the SDK with the same Python you use to run this script:\n"
+            "  python -m pip install cognite-sdk",
+            file=sys.stderr,
+        )
         return 1
 
     print(f"Started (UTC): {datetime.now(timezone.utc).isoformat()}")
     print(f"Day:           {day.isoformat()} (America/Sao_Paulo)")
     print(f"Domain:        {domain}")
     print(f"Databricks:    {view}")
-    print(f"Cognite:       {args.database.strip()}.{raw_table}")
+    print(f"Cognite host:  {cdf_host}")
+    print(f"Cognite proj:  {cdf_project}")
+    print(f"Cognite RAW:   {args.database.strip()}.{raw_table}")
     print(f"DB filter:     {args.watermark} >= {day_start!r} AND < {day_end!r}")
     print(f"CDF filter:    lastUpdatedTime >= {min_ms}")
     print()
