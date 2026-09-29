@@ -1,0 +1,65 @@
+},
+"Aufnr" : "605795831",
+"Autyp" : "30",
+"Auart" : "ZM01",
+"Lastchangedatetime" : "\/Date(1790590686000+0000)\/",
+"TotalCosts" : {
+  "results" : [
+
+  ]
+},
+"Reservations" : {
+  "results" : [
+
+  ]
+},
+"Plans" : {
+  "results" : [
+
+  ]
+},
+"Operations" : {
+  "results" : [
+    {
+      "__metadata" : {
+        "id" : "https://urldefense.com/v3/__http://qap21.global.bdx.com:8010/sap/opu/odata/sap/ZPM_MAINTENANCE_ORDER_GET_01_SRV/AfvcDetailsSet('605795831')__;!!EO7BEX0QyiQ!0-U2RDnhktV0qDhLAA5fs5_ob3B2JcKg6JN_md4bC9vOBqUWIcNM58nrXTLOIN11vtephaizct8G-3mBgLPI9FgZKDhe0j4znQ$ ",
+        "uri" : "https://urldefense.com/v3/__http://qap21.global.bdx.com:8010/sap/opu/odata/sap/ZPM_MAINTENANCE_ORDER_GET_01_SRV/AfvcDetailsSet('605795831')__;!!EO7BEX0QyiQ!0-U2RDnhktV0qDhLAA5fs5_ob3B2JcKg6JN_md4bC9vOBqUWIcNM58nrXTLOIN11vtephaizct8G-3mBgLPI9FgZKDhe0j4znQ$ ",
+        "type" : "ZPM_MAINTENANCE_ORDER_GET_01_SRV.AfvcDetails"
+      },
+      "Aufnr" : "605795831",
+      "Aufpl" : "1014223942",
+      "Aplzl" : "00000001",
+      "Equnr" : "",
+      "Larnt" : "MNTCH1",
+      "Banfn" : "",
+      "Bnfpo" : "00000",
+      "Ebeln" : "",
+      "Ebelp" : "00000",
+      "Wempf" : "",
+      "Afnam" : "",
+      "Bednr" : "",
+      "Frdlb" : "",
+      "Qpart" : "",
+      "Arbpl" : "MIFM"
+    }
+  ]
+},
+"IncorrectCostCalcConfirmations" : {
+  "results" : [
+
+  ]
+},
+"CostStructures" : {
+  "results" : [
+
+  ]
+},
+"Confirmations" : {
+  "results" : [
+
+  ]
+}
+}
+]
+}
+}
