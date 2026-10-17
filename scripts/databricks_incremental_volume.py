@@ -116,6 +116,16 @@ def infer_domain(name: str) -> str:
     return "other"
 
 
+def relation_parts(view: str, session_catalog: str, session_schema: str) -> tuple[str, str]:
+    """Catalog and schema that qualify this view in the current warehouse."""
+    parts = [p.strip() for p in view.split(".") if p.strip()]
+    if len(parts) >= 3:
+        return parts[0], parts[1]
+    if len(parts) == 2:
+        return session_catalog or "-", parts[0]
+    return session_catalog or "-", session_schema or "-"
+
+
 def short_name(fqn: str) -> str:
     leaf = fqn.split(".")[-1]
     leaf = re.sub(r"^v_cognite_", "", leaf, flags=re.I)
@@ -212,6 +222,10 @@ def build_sql(
     else:
         parts.append("CAST(NULL AS BIGINT) AS new_rows")
         parts.append("CAST(NULL AS BIGINT) AS updated_rows")
+    parts.append(
+        f"MIN(CASE WHEN CAST({w} AS STRING) IS NOT NULL "
+        f"AND CAST({w} AS STRING) <> '' THEN CAST({w} AS STRING) END) AS first_watermark"
+    )
     return f"SELECT {', '.join(parts)} FROM {relation}"
 
 
@@ -226,6 +240,7 @@ class TableStat:
     incremental_rows: int
     new_rows: int | None
     updated_rows: int | None
+    first_watermark: str
     elapsed_s: float
     status: str
     error: str = ""
@@ -300,25 +315,37 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     host, http_path, token = load_credentials()
-    print(f"Started (UTC): {datetime.now(timezone.utc).isoformat()}")
-    print(f"Host:          {host}")
-    print(f"Day:           {day.isoformat()} ({tz_name})")
-    print(f"Watermark:     {default_watermark} >= {day_start!r} AND < {day_end!r}")
-    print(f"Config:        {config_path}")
-    print(f"Tables:        {len(tables)}")
-    print()
-    header = (
-        f"{'DOMAIN':<10} {'TABLE':<12} {'TOTAL':>16} {'INCREMENTAL':>14} "
-        f"{'NEW':>12} {'UPDATED':>12} {'ELAPSED':>9}  STATUS"
-    )
-    print(header)
-    print("-" * len(header))
-
     stats: list[TableStat] = []
     errors = 0
+    session_catalog = ""
+    session_schema = ""
 
     with sql.connect(server_hostname=host, http_path=http_path, access_token=token) as conn:
         with conn.cursor() as cursor:
+            cursor.execute("SELECT current_catalog(), current_database()")
+            session = cursor.fetchone()
+            if session:
+                session_catalog = str(session[0] or "")
+                session_schema = str(session[1] or "")
+
+            print(f"Started (UTC): {datetime.now(timezone.utc).isoformat()}")
+            print(f"Host:          {host}")
+            print(f"HTTP path:     {http_path}")
+            print(f"Catalog:       {session_catalog or '-'}")
+            print(f"Schema:        {session_schema or '-'}")
+            print(f"Day:           {day.isoformat()} ({tz_name})")
+            print(f"Watermark:     {default_watermark} >= {day_start!r} AND < {day_end!r}")
+            print(f"Config:        {config_path}")
+            print(f"Tables:        {len(tables)}")
+            print()
+            header = (
+                f"{'DOMAIN':<10} {'TABLE':<12} {'CATALOG':<18} {'SCHEMA':<14} "
+                f"{'FIRST_DATE':<26} {'TOTAL':>16} {'INCREMENTAL':>14} "
+                f"{'NEW':>12} {'UPDATED':>12} {'ELAPSED':>9}  STATUS"
+            )
+            print(header)
+            print("-" * len(header))
+
             for item in tables:
                 view = item["name"]
                 relation = quote_relation(view)
@@ -349,6 +376,7 @@ def main(argv: list[str] | None = None) -> int:
                     incremental = 0 if row is None or row[1] is None else int(row[1])
                     new_rows = None if row is None or row[2] is None else int(row[2])
                     updated_rows = None if row is None or row[3] is None else int(row[3])
+                    first_watermark = "-" if row is None or row[4] in (None, "") else str(row[4])
                     elapsed = time.perf_counter() - t0
                     stat = TableStat(
                         domain=item["domain"],
@@ -360,6 +388,7 @@ def main(argv: list[str] | None = None) -> int:
                         incremental_rows=incremental,
                         new_rows=new_rows,
                         updated_rows=updated_rows,
+                        first_watermark=first_watermark,
                         elapsed_s=elapsed,
                         status="OK",
                     )
@@ -377,18 +406,21 @@ def main(argv: list[str] | None = None) -> int:
                         incremental_rows=0,
                         new_rows=None,
                         updated_rows=None,
+                        first_watermark="-",
                         elapsed_s=elapsed,
                         status="ERROR",
                         error=msg,
                     )
 
                 stats.append(stat)
+                row_catalog, row_schema = relation_parts(view, session_catalog, session_schema)
                 total_s = f"{stat.total_rows:,}" if stat.total_rows is not None else "-"
                 new_s = f"{stat.new_rows:,}" if stat.new_rows is not None else "-"
                 upd_s = f"{stat.updated_rows:,}" if stat.updated_rows is not None else "-"
                 note = stat.status if stat.status == "OK" else stat.error[:40]
                 print(
-                    f"{stat.domain:<10} {stat.table:<12} {total_s:>16} "
+                    f"{stat.domain:<10} {stat.table:<12} {row_catalog:<18} {row_schema:<14} "
+                    f"{stat.first_watermark:<26} {total_s:>16} "
                     f"{stat.incremental_rows:>14,} {new_s:>12} {upd_s:>12} "
                     f"{stat.elapsed_s:8.1f}s  {note}"
                 )
@@ -414,6 +446,9 @@ def main(argv: list[str] | None = None) -> int:
         "day": day.isoformat(),
         "timezone": tz_name,
         "host": host,
+        "http_path": http_path,
+        "catalog": session_catalog,
+        "schema": session_schema,
         "watermark_window": [day_start, day_end],
         "tables": [asdict(s) for s in stats],
         "sum_incremental": inc_sum,
