@@ -33,7 +33,11 @@ Usage (PowerShell):
 
   python scripts/databricks_likp_lips_volume.py
   python scripts/databricks_likp_lips_volume.py --catalog hub_prd
-  python scripts/databricks_likp_lips_volume.py --as-of 2026-10-22
+  python scripts/databricks_likp_lips_volume.py --pair vbak --catalog hub_dev
+
+VBAK/VBAP uses the same rule as LIKP/LIPS. VBAP is the item (WERKS + ERDAT).
+VBAK is the header (ERDAT). A header belongs to a plant when one of its items
+has that WERKS. Pass --pair vbak.
 """
 
 from __future__ import annotations
@@ -56,8 +60,20 @@ REPORT_DIR = ROOT / "scripts" / "reports"
 TZ_NAME = "America/Sao_Paulo"
 IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
-DEFAULT_LIKP = "g_external.v_cognite_likp_everest"
-DEFAULT_LIPS = "g_external.v_cognite_lips_everest"
+PAIRS = {
+    "likp": {
+        "header": "LIKP",
+        "item": "LIPS",
+        "header_view": "g_external.v_cognite_likp_everest",
+        "item_view": "g_external.v_cognite_lips_everest",
+    },
+    "vbak": {
+        "header": "VBAK",
+        "item": "VBAP",
+        "header_view": "g_external.v_cognite_vbak_everest",
+        "item_view": "g_external.v_cognite_vbap_everest",
+    },
+}
 DEFAULT_PLANTS = (
     "1024",
     "1325",
@@ -147,11 +163,17 @@ def parse_plants(raw: str) -> tuple[str, ...]:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="LIKP/LIPS volume by plant (WERKS) and ERDAT window."
+        description="Header/item volume by plant (WERKS) and ERDAT window. LIKP/LIPS or VBAK/VBAP."
+    )
+    parser.add_argument(
+        "--pair",
+        choices=tuple(PAIRS),
+        default="likp",
+        help="likp = LIKP header + LIPS item. vbak = VBAK header + VBAP item.",
     )
     parser.add_argument("--catalog", default="", help="Unity Catalog. Default: warehouse session catalog.")
-    parser.add_argument("--likp", default=DEFAULT_LIKP, help=f"LIKP view (default: {DEFAULT_LIKP})")
-    parser.add_argument("--lips", default=DEFAULT_LIPS, help=f"LIPS view (default: {DEFAULT_LIPS})")
+    parser.add_argument("--header", default="", help="Header view. Default comes from --pair.")
+    parser.add_argument("--item", default="", help="Item view. Default comes from --pair.")
     parser.add_argument(
         "--plants",
         default=",".join(DEFAULT_PLANTS),
@@ -259,6 +281,11 @@ def pct(part: int, whole: int) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    pair = PAIRS[args.pair]
+    header_label = pair["header"]
+    item_label = pair["item"]
+    header_view = args.header.strip() or pair["header_view"]
+    item_view = args.item.strip() or pair["item_view"]
     plants = parse_plants(args.plants)
     as_of = date.fromisoformat(args.as_of) if args.as_of else datetime.now(ZoneInfo(TZ_NAME)).date()
     periods = windows(as_of)
@@ -275,8 +302,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
 
-    likp = qualify(args.catalog, args.likp)
-    lips = qualify(args.catalog, args.lips)
+    likp = qualify(args.catalog, header_view)
+    lips = qualify(args.catalog, item_view)
 
     with sql.connect(server_hostname=host, http_path=http_path, access_token=token) as conn:
         with conn.cursor() as cursor:
@@ -290,8 +317,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"HTTP path:     {http_path}")
             print(f"Catalog:       {session_catalog or '-'}")
             print(f"Schema:        {session_schema or '-'}")
-            print(f"LIKP:          {likp}")
-            print(f"LIPS:          {lips}")
+            print(f"Pair:          {args.pair} ({header_label} header, {item_label} item)")
+            print(f"{header_label}:          {likp}")
+            print(f"{item_label}:          {lips}")
             print(f"Plants:        {', '.join(plants)}")
             print(f"As of:         {as_of.isoformat()} ({TZ_NAME})")
             for period in periods:
@@ -300,15 +328,15 @@ def main(argv: list[str] | None = None) -> int:
 
             likp_columns = describe_columns(cursor, likp)
             lips_columns = describe_columns(cursor, lips)
-            likp_vbeln = require_column(likp_columns, "VBELN", "LIKP")
-            likp_erdat = require_column(likp_columns, "ERDAT", "LIKP")
-            lips_vbeln = require_column(lips_columns, "VBELN", "LIPS")
-            lips_erdat = require_column(lips_columns, "ERDAT", "LIPS")
-            lips_werks = require_column(lips_columns, "WERKS", "LIPS")
+            likp_vbeln = require_column(likp_columns, "VBELN", header_label)
+            likp_erdat = require_column(likp_columns, "ERDAT", header_label)
+            lips_vbeln = require_column(lips_columns, "VBELN", item_label)
+            lips_erdat = require_column(lips_columns, "ERDAT", item_label)
+            lips_werks = require_column(lips_columns, "WERKS", item_label)
             likp_werks = likp_columns.get("WERKS")
             print(
-                "LIKP.WERKS:    "
-                + (likp_werks or "absent — plant filter for the header has to come from LIPS.VBELN")
+                f"{header_label}.WERKS:    "
+                + (likp_werks or f"absent — plant filter for the header has to come from {item_label}.VBELN")
             )
             print()
 
@@ -340,7 +368,7 @@ GROUP BY
     ELSE '(other)'
   END
 """
-            lips_rows = fetchall(cursor, lips_sql, "LIPS by plant (item ERDAT, no join)")
+            lips_rows = fetchall(cursor, lips_sql, f"{item_label} by plant (item ERDAT, no join)")
             by_werks = {str(row[0]): row for row in lips_rows}
 
             ordered_keys = list(plants) + ["(blank)", "(other)"]
@@ -382,8 +410,8 @@ GROUP BY
             )
             lips_payload.append(all_entry)
 
-            print("LIPS — filter the item table alone (WERKS + ERDAT)")
-            print(f"Selected plants are {pct(selected_rows, all_rows)} of all LIPS rows.")
+            print(f"{item_label} — filter the item table alone (WERKS + ERDAT)")
+            print(f"Selected plants are {pct(selected_rows, all_rows)} of all {item_label} rows.")
             print("Deliveries on (selected plants) is omitted: summing plants double-counts a VBELN that spans plants.")
             print_table(
                 ["WERKS", "ALL_ROWS", *[period.key.upper() for period in periods], "ERDAT_BAD", "DELIVERIES"],
@@ -403,12 +431,12 @@ FROM (
   FROM {likp}
 ) src
 """
-            likp_row = fetchone(cursor, likp_sql, "LIKP by header ERDAT only (no plant filter)")
+            likp_row = fetchone(cursor, likp_sql, f"{header_label} by header ERDAT only (no plant filter)")
             likp_names = ["rows_all", *[f"rows_{period.key}" for period in periods], "erdat_unparsed", "deliveries"]
             likp_payload = {
                 name: int(likp_row[index] or 0) for index, name in enumerate(likp_names)
             }
-            print("LIKP — date filter only. This is the header volume if the copy does not look at LIPS.")
+            print(f"{header_label} — date filter only. This is the header volume if the copy does not look at {item_label}.")
             print_table(
                 ["SCOPE", "ALL_ROWS", *[period.key.upper() for period in periods], "ERDAT_BAD", "DELIVERIES"],
                 [["(all plants)", *[likp_payload[name] for name in likp_names]]],
@@ -444,7 +472,7 @@ GROUP BY GROUPING SETS ((items.werks), ())
             matched_rows = fetchall(
                 cursor,
                 matched_sql,
-                "LIKP headers that have an item in the selected plants",
+                f"{header_label} headers that have an item in the selected plants",
             )
             matched_by_werks = {str(row[0]): row for row in matched_rows}
             matched_order = list(plants) + ["(selected plants)"]
@@ -465,10 +493,10 @@ GROUP BY GROUPING SETS ((items.werks), ())
                     entry[name] = int(values[index] or 0)
                 matched_payload.append(entry)
 
-            print("LIKP — header kept only when VBELN exists on LIPS for that plant.")
+            print(f"{header_label} — header kept only when VBELN exists on {item_label} for that plant.")
             print("A delivery with items in two plants is counted in each plant and once in (selected plants).")
             print_table(
-                ["WERKS", "LIPS_VBELN", "LIKP_MATCHED", *[f"H_{period.key.upper()}" for period in periods], "NO_HEADER"],
+                ["WERKS", f"{item_label}_VBELN", f"{header_label}_MATCHED", *[f"H_{period.key.upper()}" for period in periods], "NO_HEADER"],
                 matched_table,
             )
 
@@ -512,8 +540,8 @@ GROUP BY
     ELSE '(other)'
   END
 """
-                direct_rows = fetchall(cursor, likp_plant_sql, "LIKP has WERKS; volume by header plant")
-                print("LIKP.WERKS is present, so the header can also be filtered without joining LIPS.")
+                direct_rows = fetchall(cursor, likp_plant_sql, f"{header_label} has WERKS; volume by header plant")
+                print(f"{header_label}.WERKS is present, so the header can also be filtered without joining {item_label}.")
                 print_table(
                     ["WERKS", "ALL_ROWS", *[period.key.upper() for period in periods]],
                     [[row[0], *[int(value or 0) for value in row[1:]]] for row in direct_rows],
@@ -523,7 +551,8 @@ GROUP BY
                 ]
 
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    out = Path(args.json_out) if args.json_out else REPORT_DIR / f"likp_lips_volume_{as_of.isoformat()}.json"
+    default_json = REPORT_DIR / f"{header_label.lower()}_{item_label.lower()}_volume_{as_of.isoformat()}.json"
+    out = Path(args.json_out) if args.json_out else default_json
     payload = {
         "as_of": as_of.isoformat(),
         "timezone": TZ_NAME,
@@ -531,8 +560,11 @@ GROUP BY
         "http_path": http_path,
         "catalog": session_catalog,
         "schema": session_schema,
-        "likp": args.likp,
-        "lips": args.lips,
+        "pair": args.pair,
+        "header": header_label,
+        "item": item_label,
+        "header_view": header_view,
+        "item_view": item_view,
         "plants": list(plants),
         "windows": [{"key": period.key, "label": period.label, "start": period.start.isoformat()} for period in periods],
         "likp_has_werks": bool(likp_werks),
