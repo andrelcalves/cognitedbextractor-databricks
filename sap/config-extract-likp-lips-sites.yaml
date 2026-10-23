@@ -57,10 +57,12 @@ databases:
 
 queries:
 
-# LIKP + LIPS for 9 sites, ERDAT >= 2023-10-22.
+# LIKP + LIPS and VBAK + VBAP for 9 sites.
 # Source catalog: hub_dev. Site list: 1024, 1325, 1100, 1326, 1215, 1327, 1441, 1442, 1324.
-# LIPS is one RAW table per site: tb_LipsEverest_<WERKS>.
-# LIKP is one RAW table for all 9 sites: tb_LikpEverest_sitecode.
+# LIPS is one RAW table per site, in the site RAW database (red, pla, oak, cov, elp).
+# LIKP is one RAW table for all 9 sites: tb_LikpEverest_fltd in db_databricks_glb_raw.
+# VBAP is one RAW table per site, in the site RAW database (red, pla, oak, cov, elp).
+# VBAK is one RAW table for all 9 sites: tb_VbakEverest_fltd in db_databricks_glb_raw.
 # initial-start is the DATETIMESTAMP watermark. The 3-year cut is the ERDAT predicate.
 # Measured on 2026-10-22: LIPS 8,237,347 item rows, LIKP 3,100,865 headers (header ERDAT in the window).
 # This file does not replace config-extract-1 (LIKP) or config-extract-3 (LIPS).
@@ -119,7 +121,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_cov_raw"
       table: "tb_LipsEverest_1442"
     primary-key: "{key}"
 
@@ -177,7 +179,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_oak_raw"
       table: "tb_LipsEverest_1327"
     primary-key: "{key}"
 
@@ -235,7 +237,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_pla_raw"
       table: "tb_LipsEverest_1326"
     primary-key: "{key}"
 
@@ -293,7 +295,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_elp_raw"
       table: "tb_LipsEverest_1324"
     primary-key: "{key}"
 
@@ -351,7 +353,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_red_raw"
       table: "tb_LipsEverest_1325"
     primary-key: "{key}"
 
@@ -409,7 +411,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_red_raw"
       table: "tb_LipsEverest_1024"
     primary-key: "{key}"
 
@@ -467,7 +469,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_cov_raw"
       table: "tb_LipsEverest_1441"
     primary-key: "{key}"
 
@@ -525,7 +527,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_pla_raw"
       table: "tb_LipsEverest_1100"
     primary-key: "{key}"
 
@@ -583,7 +585,7 @@ queries:
       expression: 15m
     destination:
       type: "raw"
-      database: "db_databricks_glb_raw"
+      database: "db_databricks_oak_raw"
       table: "tb_LipsEverest_1215"
     primary-key: "{key}"
 
@@ -650,3 +652,590 @@ queries:
       database: "db_databricks_glb_raw"
       table: "tb_LikpEverest_fltd"
     primary-key: "{key}"
+
+# VBAP site 1442 Building 8195 and Madison [db_databricks_cov_raw | 3-year items: 16]
+  - name: "extract-everest-VBAP-1442"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1442'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_cov_raw"
+      table: "tb_VbapEverest_1442"
+    primary-key: "{key}"
+
+# VBAP site 1327 DC US Solutions Four Oaks [db_databricks_oak_raw | 3-year items: 104,182]
+  - name: "extract-everest-VBAP-1327"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1327'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_oak_raw"
+      table: "tb_VbapEverest_1327"
+    primary-key: "{key}"
+
+# VBAP site 1326 DC US Solutions Plainfield [db_databricks_pla_raw | 3-year items: 125,418]
+  - name: "extract-everest-VBAP-1326"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1326'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_pla_raw"
+      table: "tb_VbapEverest_1326"
+    primary-key: "{key}"
+
+# VBAP site 1324 MFG US El Paso [db_databricks_elp_raw | 3-year items: 322,604]
+  - name: "extract-everest-VBAP-1324"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1324'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_elp_raw"
+      table: "tb_VbapEverest_1324"
+    primary-key: "{key}"
+
+# VBAP site 1325 DC US Solutions Redlands [db_databricks_red_raw | 3-year items: 407,767]
+  - name: "extract-everest-VBAP-1325"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1325'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_red_raw"
+      table: "tb_VbapEverest_1325"
+    primary-key: "{key}"
+
+# VBAP site 1024 DC US Redlands CA [db_databricks_red_raw | 3-year items: 796,925]
+  - name: "extract-everest-VBAP-1024"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1024'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_red_raw"
+      table: "tb_VbapEverest_1024"
+    primary-key: "{key}"
+
+# VBAP site 1441 DC US Covington [db_databricks_cov_raw | 3-year items: 1,454,023]
+  - name: "extract-everest-VBAP-1441"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1441'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_cov_raw"
+      table: "tb_VbapEverest_1441"
+    primary-key: "{key}"
+
+# VBAP site 1100 DC US Plainfield IN [db_databricks_pla_raw | 3-year items: 1,629,750]
+  - name: "extract-everest-VBAP-1100"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1100'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_pla_raw"
+      table: "tb_VbapEverest_1100"
+    primary-key: "{key}"
+
+# VBAP site 1215 DC US Four Oaks [db_databricks_oak_raw | 3-year items: 1,815,217]
+  - name: "extract-everest-VBAP-1215"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbap_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND TRIM(CAST(WERKS AS STRING)) = '1215'
+        AND (
+          CASE
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+              THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+            WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+              THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+            ELSE NULL
+          END
+        ) >= DATE '2023-10-23'
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_oak_raw"
+      table: "tb_VbapEverest_1215"
+    primary-key: "{key}"
+
+# VBAK headers for the 9 sites [db_databricks_glb_raw | 3-year headers: 1,496,803]
+  - name: "extract-everest-VBAK-fltd"
+    database: "db-databricks-raw"
+    query: >
+      SELECT
+        sha2(
+          replace(replace(replace(replace(replace(
+            to_json(
+              map_from_entries(
+                array_sort(
+                  map_entries(
+                    from_json(
+                      to_json(struct(*), map('ignoreNullFields', 'false')),
+                      'MAP<STRING, VARIANT>'
+                    )
+                  ),
+                  (l, r) -> CASE
+                    WHEN l.key < r.key THEN -1
+                    WHEN l.key > r.key THEN 1
+                    ELSE 0
+                  END
+                )
+              ),
+              map('ignoreNullFields', 'false')
+            ),
+            '&', '\\u0026'),
+            '<', '\\u003c'),
+            '>', '\\u003e'),
+            chr(8232), '\\u2028'),
+            chr(8233), '\\u2029'
+          ),
+          256
+        ) AS key,
+        *
+      FROM hub_dev.g_external.v_cognite_vbak_everest
+      WHERE {incremental_field} >= '{start_at}'
+        AND CAST(VBELN AS STRING) IN (
+          SELECT CAST(VBELN AS STRING)
+          FROM hub_dev.g_external.v_cognite_vbap_everest
+          WHERE TRIM(CAST(WERKS AS STRING)) IN (
+            '1024', '1325', '1100', '1326', '1215', '1327', '1441', '1442', '1324'
+          )
+          AND (
+            CASE
+              WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{8}}$' AND CAST(ERDAT AS STRING) NOT LIKE '0000%'
+                THEN to_date(CAST(ERDAT AS STRING), 'yyyyMMdd')
+              WHEN CAST(ERDAT AS STRING) RLIKE '^[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}'
+                THEN to_date(substr(CAST(ERDAT AS STRING), 1, 10))
+              ELSE NULL
+            END
+          ) >= DATE '2023-10-23'
+        )
+      ORDER BY {incremental_field} ASC
+    incremental-field: DATETIMESTAMP
+    initial-start: "2020-01-01 00:00:00"
+    schedule:
+      type: interval
+      expression: 15m
+    destination:
+      type: "raw"
+      database: "db_databricks_glb_raw"
+      table: "tb_VbakEverest_fltd"
+    primary-key: "{key}"
+
