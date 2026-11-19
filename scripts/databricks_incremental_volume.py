@@ -24,6 +24,8 @@ Usage (PowerShell):
 
   python scripts/databricks_incremental_volume.py --day 2026-09-02 --domain everest
   python scripts/databricks_incremental_volume.py --no-total --name AFFW,MARA
+
+  python scripts/databricks_incremental_volume.py --by-plant --name RESB --catalog hub_prd
 """
 
 from __future__ import annotations
@@ -268,7 +270,114 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="",
         help="Write JSON report path (default: scripts/reports/incremental_YYYY-MM-DD.json).",
     )
+    parser.add_argument(
+        "--by-plant",
+        action="store_true",
+        help="Group each selected view by plant: count, first and last watermark.",
+    )
+    parser.add_argument("--catalog", default="", help="Prefix views that have no catalog, e.g. hub_prd.")
+    parser.add_argument("--plant-column", default="WERKS", help="Plant column for --by-plant (default: WERKS).")
     return parser.parse_args(argv)
+
+
+def plant_sql(relation: str, plant_column: str, watermark: str) -> str:
+    plant = quote_ident(plant_column)
+    mark = quote_ident(watermark)
+    return (
+        "SELECT "
+        f"{plant} AS plant, "
+        "COUNT(*) AS total_records, "
+        f"MIN({mark}) AS first_extraction, "
+        f"MAX({mark}) AS last_extraction "
+        f"FROM {relation} "
+        f"GROUP BY {plant} "
+        "ORDER BY total_records DESC"
+    )
+
+
+def run_by_plant(
+    cursor: Any,
+    tables: list[dict[str, Any]],
+    plant_column: str,
+    default_watermark: str,
+    session_catalog: str,
+    session_schema: str,
+) -> tuple[list[dict[str, Any]], int]:
+    payload: list[dict[str, Any]] = []
+    errors = 0
+    for item in tables:
+        view = item["name"]
+        relation = quote_relation(view)
+        table = short_name(view)
+        watermark = str(item["watermark_column"] or default_watermark)
+        row_catalog, row_schema = relation_parts(view, session_catalog, session_schema)
+        print(f"TABLE {table}  catalog={row_catalog}  schema={row_schema}")
+        print(f"View: {view}")
+        t0 = time.perf_counter()
+        try:
+            columns = describe_columns(cursor, relation)
+            if plant_column.upper() not in columns:
+                raise RuntimeError(f"missing plant column {plant_column}")
+            if watermark.upper() not in columns:
+                raise RuntimeError(f"missing watermark column {watermark}")
+            cursor.execute(plant_sql(relation, plant_column, watermark))
+            rows = cursor.fetchall() or []
+            elapsed = time.perf_counter() - t0
+            header = f"{'PLANT':<12} {'TOTAL':>16}  {'FIRST_EXTRACTION':<26}  LAST_EXTRACTION"
+            print(header)
+            print("-" * len(header))
+            plants: list[dict[str, Any]] = []
+            total = 0
+            for row in rows:
+                plant_value = "(blank)" if row[0] in (None, "") else str(row[0]).strip() or "(blank)"
+                count = int(row[1] or 0)
+                total += count
+                first = "-" if row[2] is None else str(row[2])
+                last = "-" if row[3] is None else str(row[3])
+                plants.append(
+                    {
+                        "plant": plant_value,
+                        "total_records": count,
+                        "first_extraction": first,
+                        "last_extraction": last,
+                    }
+                )
+                print(f"{plant_value:<12} {count:>16,}  {first:<26}  {last}")
+            print("-" * len(header))
+            print(f"Plants: {len(plants)}  total rows: {total:,}  elapsed: {elapsed:.1f}s")
+            print()
+            payload.append(
+                {
+                    "table": table,
+                    "view": view,
+                    "catalog": row_catalog,
+                    "schema": row_schema,
+                    "plant_column": plant_column,
+                    "watermark_column": watermark,
+                    "plants": plants,
+                    "total_records": total,
+                    "elapsed_s": round(elapsed, 1),
+                    "status": "OK",
+                }
+            )
+        except Exception as exc:
+            errors += 1
+            elapsed = time.perf_counter() - t0
+            msg = str(exc).split("\n", 1)[0]
+            print(f"ERROR  {msg}  {elapsed:.1f}s")
+            print()
+            payload.append(
+                {
+                    "table": table,
+                    "view": view,
+                    "catalog": row_catalog,
+                    "schema": row_schema,
+                    "status": "ERROR",
+                    "error": msg,
+                    "elapsed_s": round(elapsed, 1),
+                }
+            )
+    return payload, errors
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -278,7 +387,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"Config not found: {config_path}")
 
     cfg = load_config(config_path)
-    catalog = str(cfg.get("catalog") or "").strip()
+    catalog = args.catalog.strip() or str(cfg.get("catalog") or "").strip()
     schema = str(cfg.get("schema") or "g_external").strip()
     tz_name = str(cfg.get("timezone") or "America/Sao_Paulo").strip()
     default_watermark = str(cfg.get("watermark_column") or "DATETIMESTAMP").strip()
@@ -334,10 +443,41 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Catalog:       {session_catalog or '-'}")
             print(f"Schema:        {session_schema or '-'}")
             print(f"Day:           {day.isoformat()} ({tz_name})")
-            print(f"Watermark:     {default_watermark} >= {day_start!r} AND < {day_end!r}")
+            if not args.by_plant:
+                print(f"Watermark:     {default_watermark} >= {day_start!r} AND < {day_end!r}")
             print(f"Config:        {config_path}")
             print(f"Tables:        {len(tables)}")
             print()
+            if args.by_plant:
+                plant_rows, errors = run_by_plant(
+                    cursor,
+                    tables,
+                    args.plant_column.strip() or "WERKS",
+                    default_watermark,
+                    session_catalog,
+                    session_schema,
+                )
+                print(f"Finished (UTC): {datetime.now(timezone.utc).isoformat()}")
+                REPORT_DIR.mkdir(parents=True, exist_ok=True)
+                out = Path(args.json_out) if args.json_out else REPORT_DIR / f"plant_{day.isoformat()}.json"
+                out.write_text(
+                    json.dumps(
+                        {
+                            "day": day.isoformat(),
+                            "host": host,
+                            "http_path": http_path,
+                            "catalog": session_catalog,
+                            "schema": session_schema,
+                            "tables": plant_rows,
+                            "errors": errors,
+                        },
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+                print(f"JSON: {out}")
+                return 1 if errors else 0
+
             header = (
                 f"{'DOMAIN':<10} {'TABLE':<12} {'CATALOG':<18} {'SCHEMA':<14} "
                 f"{'FIRST_DATE':<26} {'TOTAL':>16} {'INCREMENTAL':>14} "
